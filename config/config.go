@@ -20,6 +20,10 @@ type DB struct {
 var cfg Config
 var loaded = false
 
+func init() {
+	load()
+}
+
 func load() {
 	file, err := os.Open("config/conf.json")
 	if err != nil {

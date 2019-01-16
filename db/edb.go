@@ -2,20 +2,11 @@ package db
 
 import "fmt"
 import "database/sql"
-import "database/sql/driver"
+import _ "database/sql/driver"
 import _ "github.com/go-sql-driver/mysql"
 
 import "github.com/EurasianMagpie/celadon/config"
 
-
-type Region struct {
-	region_id string
-	name string
-	cname string
-	logo string
-}
-
-var conn driver.Conn
 
 func Getdb() {
 	dbcfg := config.GetConfig().Db
@@ -43,3 +34,5 @@ func Getdb() {
 	defer sel.Close()
 
 }
+
+var edb *sql.DB
