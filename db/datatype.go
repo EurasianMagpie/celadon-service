@@ -1,8 +1,8 @@
 package db
 
 type Region struct {
-	name string
-	cname string
-	region_id string
-	logo string
+	Name string
+	Cname string
+	Region_id string
+	Logo string
 }

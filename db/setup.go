@@ -129,7 +129,7 @@ func updateRegion(db *sql.DB) {
 		log.Fatal(err)
 	}
 	for _, r := range regions {
-		_, err := stmt.Exec(r.name, r.cname, r.region_id, r.logo, r.name, r.cname, r.logo)
+		_, err := stmt.Exec(r.Name, r.Cname, r.Region_id, r.Logo, r.Name, r.Cname, r.Logo)
 		if err != nil {
 			log.Fatal(err)
 		}
