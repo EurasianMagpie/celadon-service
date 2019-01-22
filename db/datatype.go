@@ -6,3 +6,10 @@ type Region struct {
 	Region_id string
 	Logo string
 }
+
+type GamePrice struct {
+	Id string
+	Name string
+	Region string
+	Price string
+}

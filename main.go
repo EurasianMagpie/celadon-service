@@ -1,22 +1,32 @@
 package main
 
 import "fmt"
+import "flag"
+import "strings"
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon/debug"
+//import "github.com/EurasianMagpie/celadon/debug"
 import "github.com/EurasianMagpie/celadon/api"
 
 func main()  {
-	debug.Info()
-	fmt.Println("api.main")
+	//debug.Info()
+	t := flag.String("type", "", "process type. api or mon")
+	flag.Parse()
 
-	r := gin.Default()
-	api.RegisterApiRoutes(r)
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong - gin",
+	if strings.Compare(*t, "api") == 0 {
+		fmt.Println("main | api")
+		r := gin.Default()
+		api.RegisterApiRoutes(r)
+		r.GET("/ping", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "pong - gin",
+			})
 		})
-	})
-	r.Run()
+		r.Run()
+	} else if strings.Compare(*t, "mon") == 0 {
+		fmt.Println("main | mon")
+	} else {
+		fmt.Println("Please specify process type")
+	}
 }

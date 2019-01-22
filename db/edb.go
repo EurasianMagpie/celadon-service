@@ -39,6 +39,7 @@ func Getdb() {
 
 var edb *sql.DB
 var stmtQueryRegion *sql.Stmt
+var stmtQueryGamePrice *sql.Stmt
 
 func getdb() *sql.DB {
 	if edb != nil {
@@ -74,4 +75,30 @@ func QueryRegionInfo(id string) *Region {
 	}
 	fmt.Printf("%s %s %s\n", region.Region_id, region.Name, region.Cname)
 	return &region
+}
+
+func QueryGamePrice(id string) *GamePrice {
+	d := getdb()
+	if d == nil {
+		return nil
+	}
+	if stmtQueryGamePrice == nil {
+		stmt, err := d.Prepare(`select game.game_id, game.name, rpt.rgn, rpt.lp
+		from game,
+		(select region.cname as rgn, pt.lprice as lp
+		from region,
+		(select game_id, lregion, lprice from price where game_id=?) as pt
+		where region.region_id=pt.lregion) as rpt
+		where game.game_id=?`)
+		if err != nil {
+			log.Fatal(err)
+		}
+		stmtQueryGamePrice = stmt
+	}
+	var gamePrice GamePrice
+	err := stmtQueryGamePrice.QueryRow(id, id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Region, &gamePrice.Price)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return &gamePrice
 }

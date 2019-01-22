@@ -67,7 +67,7 @@ func setupDB() {
 	c = `create table if not exists price (
         game_id INT NOT NULL,
         price TEXT NOT NULL,
-        discount FLOAT,
+        discount TEXT,
         lprice VARCHAR(255),
         lregion VARCHAR(16),
         hprice VARCHAR(255),
