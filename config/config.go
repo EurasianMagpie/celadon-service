@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Db DB `json:"db"`
+	Mon MON `json:"mon"`
 }
 
 type DB struct {
@@ -15,6 +16,10 @@ type DB struct {
 	User string `json:"user"`
 	Pass string `json:"pass"`
 	Name string `json:"name"`
+}
+
+type MON struct {
+	Url string `json:"url"`
 }
 
 var cfg Config

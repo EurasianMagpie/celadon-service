@@ -8,6 +8,7 @@ import "github.com/gin-gonic/gin"
 
 //import "github.com/EurasianMagpie/celadon/debug"
 import "github.com/EurasianMagpie/celadon/api"
+import "github.com/EurasianMagpie/celadon/mon"
 
 func main()  {
 	//debug.Info()
@@ -26,6 +27,7 @@ func main()  {
 		r.Run()
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon")
+		mon.FetchPage()
 	} else {
 		fmt.Println("Please specify process type")
 	}
