@@ -27,7 +27,7 @@ func main()  {
 		r.Run()
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon")
-		mon.FetchPage()
+		mon.RunMonTask()
 	} else {
 		fmt.Println("Please specify process type")
 	}
