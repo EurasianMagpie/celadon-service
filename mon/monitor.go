@@ -6,5 +6,5 @@ func RunMonTask() {
 	if err != nil {
 		return
 	}
-	Read(d)
+	Parse(d)
 }

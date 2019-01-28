@@ -105,48 +105,96 @@ func getPriceTable(n *html.Node) (*html.Node, error) {
     return nil, errors.New("Not found")
 }
 
-func getRegionHead(nodePrice *html.Node) (*html.Node, error) {
-    return getFirstElementByName(nodePrice, "tr")
-}
-
-func readRegionInfo(nodeRegion *html.Node) {
+func ParseRegion(nodePrice *html.Node) {
+    // the region header
+    nodeRegion, err := getFirstElementByName(nodePrice, "tr")
+    if err != nil {
+        return
+    }
+    //region := renderNode(nodeRegion)
+    //fmt.Println(region)
     for c := nodeRegion.FirstChild; c != nil; c = c.NextSibling {
         if c.Data == "th" {
-            //var title string
-            //var namespace string
-            var kv string
+            var title string
             for _, a := range c.Attr {
                 if a.Key == "title" {
-                    //title = a.Val
-                    //namespace = a.Namespace
-                    kv = kv + "k:" + a.Key + " v:" + a.Val + "\n"
+                    title = a.Val
                     break
                 }
             }
-            //fmt.Println("title: " + title + " namespace: " + namespace)
-            fmt.Println(renderNode(c))
-            fmt.Println(kv)
-
+            if len(title) == 0 {
+                continue
+            }
+            rgn := renderNode(c)
+            a := strings.LastIndex(rgn, "/>")
+            b := strings.LastIndex(rgn, "<")
+            abbr := rgn[a+2:b]
+            abbr = strings.Trim(abbr, " ")
+            fmt.Println(abbr, title)
         }
     }
 }
 
-func Read(htm string) {
+func ParseGamePrice(nodePrice *html.Node) {
+    tbody, err := getFirstElementByName(nodePrice, "tbody")
+    if err != nil {
+        return
+    }
+    for row:=tbody.FirstChild; row!=nil; row=row.NextSibling {
+        var name string
+        var price string
+        var lrgn, hrgn int
+        var lp, hp string
+        i := 0
+        for c:=row.FirstChild; c!=nil; c=c.NextSibling {
+            if c.Data == "th" {
+                gname := renderNode(c)
+                a := strings.LastIndex(gname, "\">")
+                b := strings.LastIndex(gname, "</a")
+                name = gname[a+2:b]
+            } else if c.Data == "td" {
+                p := renderNode(c)
+                a := strings.Index(p, ">")
+                b := strings.LastIndex(p, "</")
+                np := p[a+1:b]
+                np = strings.Trim(np, "¥")
+                if len(price) == 0 {
+                    price = np
+                } else {
+                    price = price + "," + np
+                }
+
+                for _, a := range c.Attr {
+                    if a.Key == "class" {
+                        cls := a.Val
+                        if cls == "l" {
+                            lrgn = i
+                            lp = np
+                        } else if cls == "h" {
+                            hrgn = i
+                            hp = np
+                        }
+                        break
+                    }
+                }
+                i++
+            }
+        }
+        if len(name) > 0 && len(price) > 0 {
+            fmt.Println(name, price)
+            fmt.Println("lrgn:", lrgn, " lprice:", lp, " hrgn:", hrgn, " hprice:", hp)
+        }
+    }
+}
+
+func Parse(htm string) {
     doc, _ := html.Parse(strings.NewReader(htm))
     nodePrice, err := getPriceTable(doc)
     if err != nil {
         return
     }
-    fmt.Println(nodePrice)
-    //price := renderNode(nodePrice)
-    //fmt.Println(price)
     
-    nodeRegion, err := getRegionHead(nodePrice)
-    if err != nil {
-        return
-    }
-    //fmt.Println(nodeRegion)
-    region := renderNode(nodeRegion)
-    fmt.Println(region)
-    readRegionInfo(nodeRegion)
+    ParseRegion(nodePrice)
+
+    ParseGamePrice(nodePrice)
 }
