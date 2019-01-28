@@ -141,6 +141,7 @@ func ParseGamePrice(nodePrice *html.Node) {
         return
     }
     for row:=tbody.FirstChild; row!=nil; row=row.NextSibling {
+        var id string
         var name string
         var price string
         var lrgn, hrgn int
@@ -148,6 +149,20 @@ func ParseGamePrice(nodePrice *html.Node) {
         i := 0
         for c:=row.FirstChild; c!=nil; c=c.NextSibling {
             if c.Data == "th" {
+                na, err := getFirstElementByName(c, "a")
+                if err == nil {
+                    for _, attr := range na.Attr {
+                        if attr.Key == "href" {
+                            link := attr.Val
+                            a := strings.LastIndex(link, "/")
+                            l := link[a+1:]
+                            b := strings.Index(l, "-")
+                            id = l[:b]
+                            break
+                        }
+                    }
+                }
+
                 gname := renderNode(c)
                 a := strings.LastIndex(gname, "\">")
                 b := strings.LastIndex(gname, "</a")
@@ -158,7 +173,7 @@ func ParseGamePrice(nodePrice *html.Node) {
                 b := strings.LastIndex(p, "</")
                 np := p[a+1:b]
                 np = strings.Trim(np, "¥")
-                if len(price) == 0 {
+                if i == 0 {
                     price = np
                 } else {
                     price = price + "," + np
@@ -181,7 +196,7 @@ func ParseGamePrice(nodePrice *html.Node) {
             }
         }
         if len(name) > 0 && len(price) > 0 {
-            fmt.Println(name, price)
+            fmt.Println(id, name, price)
             fmt.Println("lrgn:", lrgn, " lprice:", lp, " hrgn:", hrgn, " hprice:", hp)
         }
     }
