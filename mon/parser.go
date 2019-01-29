@@ -8,35 +8,15 @@ import "io"
 
 import "golang.org/x/net/html"
 
+import "github.com/EurasianMagpie/celadon/db"
 
-const htm = `<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-    body content
-    <p>more content</p>
-</body>
-</html>`
 
-func getBody(doc *html.Node) (*html.Node, error) {
-    var b *html.Node
-    var f func(*html.Node)
-    f = func(n *html.Node) {
-        if n.Type == html.ElementNode && n.Data == "body" {
-            b = n
-        }
-        for c := n.FirstChild; c != nil; c = c.NextSibling {
-            f(c)
-        }
-    }
-    f(doc)
-    if b != nil {
-        return b, nil
-    }
-    return nil, errors.New("Missing <body> in the node tree")
+type ParseResult struct {
+    Regions []db.Region
+    Games []db.GemeInfo
+    Prices []db.Price
 }
+var parseResult ParseResult
 
 func renderNode(n *html.Node) string {
     var buf bytes.Buffer
@@ -45,17 +25,22 @@ func renderNode(n *html.Node) string {
     return buf.String()
 }
 
-func LoadHtml() {
-	doc, _ := html.Parse(strings.NewReader(htm))
-	bn, err := getBody(doc)
-	if err != nil {
-		return
-	}
-	body := renderNode(bn)
-	fmt.Println(body)
+func simpleNodeContent(n *html.Node, nodeName string) string {
+    s := renderNode(n)
+    tag := "<"+nodeName+">"
+    a := strings.Index(s, tag)
+    b := strings.Index(s, "</"+nodeName+">")
+    return s[a+len(tag):b]
 }
 
-///
+func getNodeAttr(n *html.Node, key string) (string, error) {
+    for _, a := range n.Attr {
+        if a.Key == key {
+            return a.Val, nil
+        }
+    }
+    return "", errors.New("Not found")
+}
 
 func getFirstElementByName(n *html.Node, name string) (*html.Node, error) {
     if n.Type == html.ElementNode && n.Data == name {
@@ -86,6 +71,25 @@ func getLastElementByName(doc *html.Node, name string) (*html.Node, error) {
         return b, nil
     }
     return nil, errors.New("Missing " + name + " in the node tree")
+}
+
+func getFirstElementByNameAndAttr(n *html.Node, name string, attrKey string, attrVal string) (*html.Node, error) {
+    if n.Type == html.ElementNode && n.Data == name {
+        for _, a := range n.Attr {
+            if a.Key == attrKey {
+                if a.Val == attrVal {
+                    return n, nil
+                }
+            }
+        }
+    }
+    for c := n.FirstChild; c != nil; c = c.NextSibling {
+        r, err := getFirstElementByNameAndAttr(c, name, attrKey, attrVal)
+        if err==nil && r != nil {
+            return r, err
+        }
+    }
+    return nil, errors.New("Not found")
 }
 
 func getPriceTable(n *html.Node) (*html.Node, error) {
@@ -130,7 +134,8 @@ func ParseRegion(nodePrice *html.Node) {
             b := strings.LastIndex(rgn, "<")
             abbr := rgn[a+2:b]
             abbr = strings.Trim(abbr, " ")
-            fmt.Println(abbr, title)
+            //fmt.Println(abbr, title)
+            parseResult.Regions = append(parseResult.Regions, db.Region{Region_id:abbr, Name:title})
         }
     }
 }
@@ -143,6 +148,7 @@ func ParseGamePrice(nodePrice *html.Node) {
     for row:=tbody.FirstChild; row!=nil; row=row.NextSibling {
         var id string
         var name string
+        var ref string
         var price string
         var lrgn, hrgn int
         var lp, hp string
@@ -154,6 +160,7 @@ func ParseGamePrice(nodePrice *html.Node) {
                     for _, attr := range na.Attr {
                         if attr.Key == "href" {
                             link := attr.Val
+                            ref = link
                             a := strings.LastIndex(link, "/")
                             l := link[a+1:]
                             b := strings.Index(l, "-")
@@ -196,20 +203,94 @@ func ParseGamePrice(nodePrice *html.Node) {
             }
         }
         if len(name) > 0 && len(price) > 0 {
-            fmt.Println(id, name, price)
-            fmt.Println("lrgn:", lrgn, " lprice:", lp, " hrgn:", hrgn, " hprice:", hp)
+            //fmt.Println(id, name, price)
+            //fmt.Println("lrgn:", regions[lrgn].Name, " lprice:", lp, " hrgn:", regions[hrgn].Name, " hprice:", hp)
+            parseResult.Games = append(parseResult.Games, db.GemeInfo{Id:id, Name:name, Ref:ref})
+            parseResult.Prices = append(parseResult.Prices, db.Price{Id:id, Price:price, LPrice:lp, LRegion:parseResult.Regions[lrgn].Region_id, HPrice:hp, HRegion:parseResult.Regions[hrgn].Region_id})
         }
     }
 }
 
-func Parse(htm string) {
+func DeepParseGameInfo() {
+    for _, g := range parseResult.Games {
+        htm, err := FetchHtmlFromUrl(g.Ref)
+        if err != nil {
+            continue
+        }
+        doc, err := html.Parse(strings.NewReader(htm))
+        if err != nil {
+            continue
+        }
+        body, err := getFirstElementByName(doc, "body")
+        if err != nil {
+            continue
+        }
+
+        div, err := getFirstElementByNameAndAttr(body, "div", "class", "hero game-hero")
+        if err != nil {
+            continue
+        }
+        div, err = getFirstElementByNameAndAttr(div, "div", "class", "wrapper")
+        if err != nil {
+            continue
+        }
+
+        var title string
+        var desc string
+        var date string
+        var img string
+        for c:=div.FirstChild; c!=nil; c=c.NextSibling {
+            if c.Data == "picture" {
+                src, err := getFirstElementByName(c, "source")
+                if err != nil {
+                    continue
+                }
+                srcset, err := getNodeAttr(src, "srcset")
+                if err != nil {
+                    continue
+                }
+                r := strings.Split(srcset, " ")
+                img = r[0]
+            } else if c.Data == "div" {
+                for d:=c.FirstChild; d!=nil; d=d.NextSibling {
+                    if d.Data == "h1" {
+                        title = simpleNodeContent(d, "h1")
+                    } else if d.Data == "p" {
+                        desc = simpleNodeContent(d, "p")
+                    } else if d.Data == "small" {
+                        date = simpleNodeContent(d, "small")
+                        //len("Released on ") = 12
+                        date = date[12:]
+                    }
+                }
+            }
+        }
+
+        g.Name = title
+        g.Desc = desc
+        g.ReleaseDate = date
+        g.CoverUrl = img
+        fmt.Println(g)
+    }
+}
+
+func Parse(htm string, deep bool) (*ParseResult, error) {
+    parseResult.Regions = parseResult.Regions[:0]
+    parseResult.Games = parseResult.Games[:0]
+    parseResult.Prices = parseResult.Prices[:0]
+
     doc, _ := html.Parse(strings.NewReader(htm))
     nodePrice, err := getPriceTable(doc)
     if err != nil {
-        return
+        return nil, errors.New("Parse failed")
     }
     
     ParseRegion(nodePrice)
 
     ParseGamePrice(nodePrice)
+
+    if deep {
+        DeepParseGameInfo()
+    }
+    return &parseResult, nil
 }

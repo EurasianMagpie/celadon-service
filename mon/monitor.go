@@ -1,10 +1,14 @@
 package mon
 
 
-func RunMonTask() {
+func RunMonTask(deep bool) {
 	d, err := FetchPage()
 	if err != nil {
 		return
 	}
-	Parse(d)
+	result, err := Parse(d, deep)
+	if err != nil {
+		return
+	}
+	UpdateResult(result)
 }

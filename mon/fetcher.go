@@ -51,6 +51,20 @@ func ensureDir(fileName string) {
 	}
 }
 
+func FetchHtmlFromUrl(url string) (string, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("FetchPage | read resp failed")
+		return "", err
+	}
+	return string(body), nil
+}
+
 func fetchPageNet() (string, error) {
 	url := config.GetConfig().Mon.Url
 	fmt.Println("FetchPage url:", url)
