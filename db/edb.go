@@ -1,7 +1,8 @@
 package db
 
 import "fmt"
-import "log"
+//import "log"
+import "errors"
 
 import "database/sql"
 import _ "database/sql/driver"
@@ -32,32 +33,33 @@ func getdb() *sql.DB {
 	return edb
 }
 
-func QueryRegionInfo(id string) *Region {
+func QueryRegionInfo(id string) (*Region, error) {
 	d := getdb()
 	if d == nil {
-		return nil
+		return nil, errors.New("db error")
 	}
 
 	if stmtQueryRegion == nil {
-		stmt, err := d.Prepare("select region_id, name, cname, logo from region where region_id = ?")
+		stmt, err := d.Prepare("select region_id, name, cname from region where region_id = ?")
 		if err != nil {
-			log.Fatal(err)
+			stmtQueryRegion = nil
+			return nil, errors.New("stmt error")
 		}
 		stmtQueryRegion = stmt
 	}
 	var region Region
-	err := stmtQueryRegion.QueryRow(id).Scan(&region.Region_id, &region.Name, &region.Cname, &region.Logo)
+	err := stmtQueryRegion.QueryRow(id).Scan(&region.Region_id, &region.Name, &region.Cname)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	fmt.Printf("%s %s %s\n", region.Region_id, region.Name, region.Cname)
-	return &region
+	return &region, nil
 }
 
-func QueryGamePrice(id string) *GamePrice {
+func QueryGamePrice(id string) (*GamePrice, error) {
 	d := getdb()
 	if d == nil {
-		return nil
+		return nil, errors.New("db error")
 	}
 	if stmtQueryGamePrice == nil {
 		stmt, err := d.Prepare(`select game.game_id, game.name, rpt.rgn, rpt.lp
@@ -68,16 +70,16 @@ func QueryGamePrice(id string) *GamePrice {
 		where region.region_id=pt.lregion) as rpt
 		where game.game_id=?`)
 		if err != nil {
-			log.Fatal(err)
+			return nil, errors.New("stmt error")
 		}
 		stmtQueryGamePrice = stmt
 	}
 	var gamePrice GamePrice
 	err := stmtQueryGamePrice.QueryRow(id, id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Region, &gamePrice.Price)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return &gamePrice
+	return &gamePrice, nil
 }
 
 func UpdateRegion(region Region) {
@@ -90,7 +92,8 @@ func UpdateRegion(region Region) {
 		fmt.Println("create stmtUpdateRegion")
 		stmt, err := d.Prepare("INSERT INTO region (region_id,name) VALUES(?,?) ON DUPLICATE KEY UPDATE name=?")
 		if err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			return
 		}
 		stmtUpdateRegion = stmt
 	}
@@ -110,7 +113,8 @@ func UpdateGame(gameInfo GameInfo) {
 		fmt.Println("create stmtUpdateGame")
 		stmt, err := d.Prepare("INSERT INTO game (game_id, name, description, release_date) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE name=?, description=?, release_date=?")
 		if err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			return
 		}
 		stmtUpdateGame = stmt
 	}
@@ -134,7 +138,8 @@ func UpdatePrice(price Price) {
 		fmt.Println("create stmtUpdatePrice")
 		stmt, err := d.Prepare("INSERT INTO price (game_id,price,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
 		if err != nil {
-			log.Fatal(err)
+			//log.Fatal(err)
+			return
 		}
 		stmtUpdatePrice = stmt
 	}
