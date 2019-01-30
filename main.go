@@ -27,7 +27,7 @@ func main()  {
 		r.Run()
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon")
-		mon.RunMonTask(true)
+		mon.RunMonTask(false)
 	} else {
 		fmt.Println("Please specify process type")
 	}

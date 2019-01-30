@@ -13,7 +13,7 @@ import "github.com/EurasianMagpie/celadon/db"
 
 type ParseResult struct {
     Regions []db.Region
-    Games []db.GemeInfo
+    Games []db.GameInfo
     Prices []db.Price
 }
 var parseResult ParseResult
@@ -205,7 +205,7 @@ func ParseGamePrice(nodePrice *html.Node) {
         if len(name) > 0 && len(price) > 0 {
             //fmt.Println(id, name, price)
             //fmt.Println("lrgn:", regions[lrgn].Name, " lprice:", lp, " hrgn:", regions[hrgn].Name, " hprice:", hp)
-            parseResult.Games = append(parseResult.Games, db.GemeInfo{Id:id, Name:name, Ref:ref})
+            parseResult.Games = append(parseResult.Games, db.GameInfo{Id:id, Name:name, Ref:ref})
             parseResult.Prices = append(parseResult.Prices, db.Price{Id:id, Price:price, LPrice:lp, LRegion:parseResult.Regions[lrgn].Region_id, HPrice:hp, HRegion:parseResult.Regions[hrgn].Region_id})
         }
     }

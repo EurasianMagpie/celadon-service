@@ -1,6 +1,6 @@
 package mon
 
-
+import "github.com/EurasianMagpie/celadon/db"
 
 
 func UpdateResult(result *ParseResult) {
@@ -8,4 +8,15 @@ func UpdateResult(result *ParseResult) {
 
 	// update table region, game, price
 	// caution: symbols to escape in sql
+	for _, region := range result.Regions {
+		db.UpdateRegion(region)
+	}
+
+	for _, game := range result.Games {
+		db.UpdateGame(game)
+	}//*/
+
+	for _, price := range result.Prices {
+		db.UpdatePrice(price)
+	}//*/
 }

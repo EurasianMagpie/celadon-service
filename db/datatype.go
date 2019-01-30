@@ -7,7 +7,7 @@ type Region struct {
 	Logo string
 }
 
-type GemeInfo struct {
+type GameInfo struct {
 	Id string
 	Name string
 	Cname string
