@@ -14,6 +14,8 @@ import "github.com/EurasianMagpie/celadon/config"
 var edb *sql.DB
 var stmtQueryRegion *sql.Stmt
 var stmtQueryGamePrice *sql.Stmt
+var stmtQuerySearchGamePrice *sql.Stmt
+
 var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGame *sql.Stmt
 var stmtUpdatePrice *sql.Stmt
@@ -43,7 +45,7 @@ func QueryRegionInfo(id string) (*Region, error) {
 		stmt, err := d.Prepare("select region_id, name, cname from region where region_id = ?")
 		if err != nil {
 			stmtQueryRegion = nil
-			return nil, errors.New("stmt error")
+			return nil, err
 		}
 		stmtQueryRegion = stmt
 	}
@@ -70,7 +72,7 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		where region.region_id=pt.lregion) as rpt
 		where game.game_id=?`)
 		if err != nil {
-			return nil, errors.New("stmt error")
+			return nil, err
 		}
 		stmtQueryGamePrice = stmt
 	}
@@ -80,6 +82,44 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		return nil, err
 	}
 	return &gamePrice, nil
+}
+
+func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQuerySearchGamePrice == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, price.lregion, price.lprice 
+		from 
+			price 
+			inner join 
+				(select game_id, name from game where name like ?) as t1 
+			on price.game_id=t1.game_id
+		`)
+		if err != nil {
+			return nil, err
+		}
+		stmtQuerySearchGamePrice = stmt
+	}
+	var gamePrices []GamePrice
+	np := "%" + name + "%"
+	rows, err := stmtQuerySearchGamePrice.Query(np)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p GamePrice
+		err := rows.Scan(&p.Id, &p.Name, &p.Region, &p.Price)
+		if err != nil {
+			return nil, errors.New("scan error")
+		}
+		//fmt.Println(p)
+		gamePrices = append(gamePrices, p)
+	}
+	return &gamePrices, nil
 }
 
 func UpdateRegion(region Region) {
