@@ -38,8 +38,8 @@ func setupDB() {
 
 	c = `create table if not exists region (
         region_id VARCHAR(16) NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        cname VARCHAR(255) NOT NULL,
+        name VARCHAR(255) NOT NULL DEFAULT '',
+        cname VARCHAR(255) NOT NULL DEFAULT '',
         logo TEXT,
         PRIMARY KEY (region_id)
 		);`
@@ -50,13 +50,13 @@ func setupDB() {
 
 	c = `create table if not exists game (
         game_id INT NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        cname VARCHAR(255),
+        name VARCHAR(255) NOT NULL DEFAULT '',
+        cname VARCHAR(255) NOT NULL DEFAULT '',
         description TEXT,
         language TEXT,
         cover TEXT,
         release_date DATE,
-        status INT,
+        status INT NOT NULL DEFAULT 0,
         PRIMARY KEY (game_id)
         );`
 	_, err = db.Exec(c)
@@ -68,10 +68,10 @@ func setupDB() {
         game_id INT NOT NULL,
         price TEXT NOT NULL,
         discount TEXT,
-        lprice VARCHAR(255),
-        lregion VARCHAR(16),
-        hprice VARCHAR(255),
-        hregion VARCHAR(16),
+        lprice VARCHAR(255) NOT NULL DEFAULT '',
+        lregion VARCHAR(16) NOT NULL DEFAULT '',
+        hprice VARCHAR(255) NOT NULL DEFAULT '',
+        hregion VARCHAR(16) NOT NULL DEFAULT '',
         PRIMARY KEY (game_id)
 		);`
 	_, err = db.Exec(c)

@@ -130,14 +130,18 @@ func UpdateRegion(region Region) {
 
 	if stmtUpdateRegion == nil {
 		fmt.Println("create stmtUpdateRegion")
-		stmt, err := d.Prepare("INSERT INTO region (region_id,name) VALUES(?,?) ON DUPLICATE KEY UPDATE name=?")
+		stmt, err := d.Prepare(`
+			INSERT INTO region (region_id,name,cname,logo) 
+			VALUES(?,?,?,?) 
+			ON DUPLICATE KEY UPDATE name=?
+		`)
 		if err != nil {
 			//log.Fatal(err)
 			return
 		}
 		stmtUpdateRegion = stmt
 	}
-	_, err := stmtUpdateRegion.Exec(region.Region_id, region.Name, region.Name)
+	_, err := stmtUpdateRegion.Exec(region.Region_id, region.Name, region.Cname, region.Logo, region.Name)
 	if err != nil {
 		panic(err)
 	}
@@ -151,18 +155,18 @@ func UpdateGame(gameInfo GameInfo) {
 
 	if stmtUpdateGame == nil {
 		fmt.Println("create stmtUpdateGame")
-		stmt, err := d.Prepare("INSERT INTO game (game_id, name, description, release_date) VALUES(?,?,?,?) ON DUPLICATE KEY UPDATE name=?, description=?, release_date=?")
+		stmt, err := d.Prepare(`
+			INSERT INTO game (game_id, name, cname, description, language, cover, release_date, status) 
+			VALUES(?,?,?,?,?,?,?,?) 
+			ON DUPLICATE KEY UPDATE name=?, description=?, release_date=?
+		`)
 		if err != nil {
 			//log.Fatal(err)
 			return
 		}
 		stmtUpdateGame = stmt
 	}
-	date := ""
-	if len(gameInfo.ReleaseDate) > 0 {
-		date = "STR_TO_DATE('" + gameInfo.ReleaseDate + "', %M %D, %Y')"
-	}
-	_, err := stmtUpdateGame.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Desc, date, gameInfo.Name, gameInfo.Desc, date)
+	_, err := stmtUpdateGame.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Desc, gameInfo.ReleaseDate)
 	if err != nil {
 		panic(err)
 	}
@@ -176,14 +180,14 @@ func UpdatePrice(price Price) {
 
 	if stmtUpdatePrice == nil {
 		fmt.Println("create stmtUpdatePrice")
-		stmt, err := d.Prepare("INSERT INTO price (game_id,price,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
+		stmt, err := d.Prepare("INSERT INTO price (game_id,price,discount,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
 		if err != nil {
 			//log.Fatal(err)
 			return
 		}
 		stmtUpdatePrice = stmt
 	}
-	_, err := stmtUpdatePrice.Exec(price.Id, price.Price, price.LPrice, price.LRegion, price.HPrice, price.HRegion, price.Price, price.LPrice, price.LRegion, price.HPrice, price.HRegion)
+	_, err := stmtUpdatePrice.Exec(price.Id, price.Price, price.Discount, price.LPrice, price.LRegion, price.HPrice, price.HRegion, price.Price, price.LPrice, price.LRegion, price.HPrice, price.HRegion)
 	if err != nil {
 		panic(err)
 	}

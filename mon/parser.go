@@ -5,11 +5,20 @@ import "strings"
 import "errors"
 import "bytes"
 import "io"
+import "regexp"
+import "time"
 
 import "golang.org/x/net/html"
 
 import "github.com/EurasianMagpie/celadon/db"
 
+
+var defaultDate time.Time
+
+func init() {
+    dt, _ := time.Parse("2006-01-02", "2018-01-01")
+    defaultDate = dt
+}
 
 type ParseResult struct {
     Regions []db.Region
@@ -135,7 +144,7 @@ func ParseRegion(nodePrice *html.Node) {
             abbr := rgn[a+2:b]
             abbr = strings.Trim(abbr, " ")
             //fmt.Println(abbr, title)
-            parseResult.Regions = append(parseResult.Regions, db.Region{Region_id:abbr, Name:title})
+            parseResult.Regions = append(parseResult.Regions, db.NewRegion(abbr, title))
         }
     }
 }
@@ -205,14 +214,34 @@ func ParseGamePrice(nodePrice *html.Node) {
         if len(name) > 0 && len(price) > 0 {
             //fmt.Println(id, name, price)
             //fmt.Println("lrgn:", regions[lrgn].Name, " lprice:", lp, " hrgn:", regions[hrgn].Name, " hprice:", hp)
-            parseResult.Games = append(parseResult.Games, db.GameInfo{Id:id, Name:name, Ref:ref})
-            parseResult.Prices = append(parseResult.Prices, db.Price{Id:id, Price:price, LPrice:lp, LRegion:parseResult.Regions[lrgn].Region_id, HPrice:hp, HRegion:parseResult.Regions[hrgn].Region_id})
+            parseResult.Games = append(parseResult.Games, db.NewGameInfo(id, name, ref))
+            parseResult.Prices = append(parseResult.Prices, db.NewPrice(id, price, lp, parseResult.Regions[lrgn].Region_id, hp, parseResult.Regions[hrgn].Region_id))
         }
     }
 }
 
+func parseDate(s string) time.Time {
+    //January 1st, 2019
+    r, err := regexp.Compile(`([a-zA-Z]+) ([0-9]+)[a-z]*, ([0-9]{4})`)
+    if err != nil {
+        return defaultDate
+    }
+    params := r.FindStringSubmatch(s)
+    t := fmt.Sprintf("%s %s %s", params[1], params[2], params[3])
+    layout := "January 2 2006"
+    dt, err := time.Parse(layout, t)
+    if err != nil {
+        return defaultDate
+    }
+    return dt
+}
+
 func DeepParseGameInfo() {
-    for _, g := range parseResult.Games {
+    for i:=0; i<len(parseResult.Games); i++ {
+        g := &parseResult.Games[i]
+        /*if i > 5 {
+            break
+        }//*/
         htm, err := FetchHtmlFromUrl(g.Ref)
         if err != nil {
             continue
@@ -268,9 +297,10 @@ func DeepParseGameInfo() {
 
         g.Name = title
         g.Desc = desc
-        g.ReleaseDate = date
+        g.ReleaseDate = parseDate(date)
         g.CoverUrl = img
-        fmt.Println(g)
+        //fmt.Println(g)
+        //fmt.Println(g.Name, g.ReleaseDate, date)
     }
 }
 
