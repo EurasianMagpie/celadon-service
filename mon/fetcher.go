@@ -9,6 +9,7 @@ import "strings"
 import "bufio"
 
 import "net/http"
+import "net/url"
 
 import "github.com/EurasianMagpie/celadon/config"
 
@@ -63,6 +64,30 @@ func FetchHtmlFromUrl(url string) (string, error) {
 		return "", err
 	}
 	return string(body), nil
+}
+
+func saveFileFromUrl(url string, fname string) bool {
+	resp, err := http.Get(url)
+	if err != nil {
+		return false
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return false
+	}
+
+	f, err := os.Create(fname)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+	n, err := f.Write(body)
+	if err != nil {
+		return false
+	}
+	f.Sync()
+	return n > 0
 }
 
 func fetchPageNet() (string, error) {
@@ -136,6 +161,13 @@ func currentDate() string {
 	return currentTime.Format("2006-01-02")
 }
 
+func isFileExist(fname string) bool {
+	if _, err := os.Stat(fname); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
 func isCacheValid() bool {
 	curDate := currentDate()
 	if strings.Compare(lastFetchDate(), curDate) == 0 {
@@ -173,4 +205,48 @@ func FetchPage() (string, error) {
 		}
 	}
 	return fetchPageNet()
+}
+
+func gameCoverDir() (string, error) {
+	d, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	dir := d + "/mondata/cover"
+	return dir, nil
+}
+
+func getUrlFileName(_url string) (string, error) {
+	u, err := url.Parse(_url)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Base(u.Path), nil
+}
+
+func FetchGameCoverIfNeeded(id string, url string, _type string) {
+	if len(id) == 0 || len(url) == 0 {
+		return
+	}
+	//fmt.Println("FetchGameCoverIfNeeded", id, url)
+	ext := _type
+	if _type != "webp" {
+		ext = "jpg"
+	}
+	
+	//fmt.Println("FetchGameCoverIfNeeded", ext)
+	dir, err := gameCoverDir()
+	if err != nil {
+		return
+	}
+
+	coverImgPath := fmt.Sprintf("%s/%s.%s", dir, id, ext)
+	if isFileExist(coverImgPath) {
+		//fmt.Println("FetchGameCoverIfNeeded file allready exist")
+		return
+	}
+
+	ensureDir(coverImgPath)
+	saveFileFromUrl(url, coverImgPath)
+	//fmt.Println("FetchGameCoverIfNeeded save cover image")
 }

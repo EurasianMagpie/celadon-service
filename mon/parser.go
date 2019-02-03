@@ -268,6 +268,7 @@ func DeepParseGameInfo() {
         var desc string
         var date string
         var img string
+        var imgType string
         for c:=div.FirstChild; c!=nil; c=c.NextSibling {
             if c.Data == "picture" {
                 src, err := getFirstElementByName(c, "source")
@@ -280,6 +281,10 @@ func DeepParseGameInfo() {
                 }
                 r := strings.Split(srcset, " ")
                 img = r[0]
+                _t, err := getNodeAttr(src, "type")
+                s := strings.LastIndex(_t, "/")
+                _t = _t[s+1:]
+                imgType = _t
             } else if c.Data == "div" {
                 for d:=c.FirstChild; d!=nil; d=d.NextSibling {
                     if d.Data == "h1" {
@@ -299,7 +304,8 @@ func DeepParseGameInfo() {
         g.Desc = desc
         g.ReleaseDate = parseDate(date)
         g.CoverUrl = img
-        //fmt.Println(g)
+        g.CoverType = imgType
+        fmt.Println(g)
         //fmt.Println(g.Name, g.ReleaseDate, date)
     }
 }

@@ -14,6 +14,8 @@ func UpdateResult(result *ParseResult) {
 
 	for _, game := range result.Games {
 		db.UpdateGame(game)
+
+		FetchGameCoverIfNeeded(game.Id, game.CoverUrl, game.CoverType)
 	}//*/
 
 	for _, price := range result.Prices {

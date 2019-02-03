@@ -26,6 +26,7 @@ type GameInfo struct {
 
 	Ref string
 	CoverUrl string
+	CoverType string
 }
 
 func NewGameInfo(id string, name string, ref string) GameInfo {
