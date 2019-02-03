@@ -20,6 +20,8 @@ var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGame *sql.Stmt
 var stmtUpdatePrice *sql.Stmt
 
+var mapCheckGameDetail map[string]bool
+
 func getdb() *sql.DB {
 	if edb != nil {
 		return edb
@@ -191,4 +193,36 @@ func UpdatePrice(price Price) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func ReCheckGameDetail() bool {
+	d := getdb()
+	if d == nil {
+		return false
+	}
+
+	var m map[string]bool
+	m = make(map[string]bool)
+	rows, err := d.Query("select game_id, description from game")
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var id, desc string
+		err := rows.Scan(&id, &desc)
+		if err != nil {
+			return false
+		}
+		m[id] = len(desc)>0
+	}
+	mapCheckGameDetail = m
+	return true
+}
+
+func IsGameDetialed(id string) bool {
+	if val, ok := mapCheckGameDetail[id]; ok {
+		return val
+	}
+	return false
 }

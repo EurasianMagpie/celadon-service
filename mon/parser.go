@@ -237,11 +237,19 @@ func parseDate(s string) time.Time {
 }
 
 func DeepParseGameInfo() {
+    if !db.ReCheckGameDetail() {
+        return
+    }
+
     for i:=0; i<len(parseResult.Games); i++ {
         g := &parseResult.Games[i]
         /*if i > 5 {
             break
         }//*/
+        if db.IsGameDetialed(g.Id) {
+            continue
+        }
+
         htm, err := FetchHtmlFromUrl(g.Ref)
         if err != nil {
             continue
