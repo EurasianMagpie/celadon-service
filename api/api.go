@@ -15,37 +15,37 @@ func RegisterApiRoutes(r *gin.Engine) {
 func regionInfo(c *gin.Context) {
 	id := c.Query("id")
 	r, err := db.QueryRegionInfo(id)
-	if err == nil && r != nil {
-		c.JSON(200, gin.H{
-			"api": "rinfo",
-			"id": r.Region_id,
-			"name": r.Name,
-			"cname": r.Cname,
-		})
+	if err == nil {
+		d := gin.H{}
+		if r != nil {
+			d = gin.H{
+				"id": r.Region_id,
+				"name": r.Name,
+				"cname": r.Cname,
+			}
+		}
+		c.JSON(200, formResult(0, "", d))
 	} else {
-		c.JSON(200, gin.H{
-			"api": "rinfo",
-			"error": "no result",
-		})
-	}//*/
+		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
+	}
 }
 
 func gamePrice(c *gin.Context) {
 	id := c.Query("id")
 	r, err := db.QueryGamePrice(id)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"api": "gp",
-			"error": "no result",
-		})
+		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
-		c.JSON(200, gin.H{
-			"api": "gp",
-			"id": r.Id,
-			"name": r.Name,
-			"region": r.Region,
-			"price": r.Price,
-		})
+		d := gin.H{}
+		if r != nil {
+			d = gin.H {
+				"id": r.Id,
+				"name": r.Name,
+				"region": r.Region,
+				"price": r.Price,
+			}
+		}
+		c.JSON(200, formResult(0, "", d))
 	}
 }
 
@@ -53,18 +53,22 @@ func searchPrice(c *gin.Context) {
 	name := c.Query("name")
 	r, err := db.QuerySearchGamePrice(name)
 	if err != nil {
-		c.JSON(200, gin.H{
-			"api": "sp",
-			"error": string(err.Error()),
-		})
+		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
-		var s string
-		for _, p := range *r {
-			s = s + p.Name
+		d := gin.H{}
+		if r != nil {
+			d = gin.H {
+				"games" : r,
+			}
 		}
-		c.JSON(200, gin.H{
-			"api": "sp",
-			"r":  r,
-		})
+		c.JSON(200, formResult(0, "", d))
+	}
+}
+
+func formResult(errno int, errmsg string, data gin.H) gin.H {
+	return gin.H {
+		"errno": errno,
+		"errmsg": errmsg,
+		"data" : data,
 	}
 }
