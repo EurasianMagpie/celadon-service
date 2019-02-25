@@ -13,6 +13,8 @@ import "github.com/EurasianMagpie/celadon/config"
 
 var edb *sql.DB
 var stmtQueryRegion *sql.Stmt
+var stmtQueryGameInfo *sql.Stmt
+var stmtQueryPriceInfo *sql.Stmt
 var stmtQueryGamePrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
 
@@ -60,13 +62,53 @@ func QueryRegionInfo(id string) (*Region, error) {
 	return &region, nil
 }
 
+func QueryGameInfo(id string) (*GameInfo, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQueryGameInfo == nil {
+		stmt, err := d.Prepare(`select game_id, name, cname, description, language, cover, status from game where game_id=?`)
+		if err != nil {
+			return nil, err
+		}
+		stmtQueryGameInfo = stmt
+	}
+	var g GameInfo
+	err := stmtQueryGameInfo.QueryRow(id).Scan(&g.Id, &g.Name, &g.Cname, &g.Desc, &g.Language, &g.Cover, &g.Status)
+	if err != nil {
+		return nil, err
+	}
+	return &g, nil
+}
+
+func QueryPriceInfo(id string) (*Price, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQueryPriceInfo == nil {
+		stmt, err := d.Prepare(`select game_id, price, discount, lprice, lregion, hprice, hregion from price where game_id=?`)
+		if err != nil {
+			return nil, err
+		}
+		stmtQueryPriceInfo = stmt
+	}
+	var p Price
+	err := stmtQueryPriceInfo.QueryRow(id).Scan(&p.Id, &p.Price, &p.Discount, &p.LPrice, &p.LRegion, &p.HPrice, &p.HRegion)
+	if err != nil {
+		return nil, err
+	}
+	return &p, nil
+}
+
 func QueryGamePrice(id string) (*GamePrice, error) {
 	d := getdb()
 	if d == nil {
 		return nil, errors.New("db error")
 	}
 	if stmtQueryGamePrice == nil {
-		stmt, err := d.Prepare(`select game.game_id, game.name, rpt.rgn, rpt.lp
+		stmt, err := d.Prepare(`select game.game_id, game.name, game.cname, game.cover, rpt.rgn, rpt.lp
 		from game,
 		(select region.cname as rgn, pt.lprice as lp
 		from region,
@@ -79,7 +121,7 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		stmtQueryGamePrice = stmt
 	}
 	var gamePrice GamePrice
-	err := stmtQueryGamePrice.QueryRow(id, id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Region, &gamePrice.Price)
+	err := stmtQueryGamePrice.QueryRow(id, id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Cname, &gamePrice.Cover, &gamePrice.Region, &gamePrice.Price)
 	if err != nil {
 		return nil, err
 	}
@@ -94,11 +136,11 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	if stmtQuerySearchGamePrice == nil {
 		stmt, err := d.Prepare(`
 		select 
-			price.game_id, t1.name, price.lregion, price.lprice 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
 		from 
 			price 
 			inner join 
-				(select game_id, name from game where name like ?) as t1 
+				(select game_id, name, cname, cover from game where name like ?) as t1 
 			on price.game_id=t1.game_id
 		`)
 		if err != nil {
@@ -114,7 +156,7 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	}
 	for rows.Next() {
 		var p GamePrice
-		err := rows.Scan(&p.Id, &p.Name, &p.Region, &p.Price)
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
 		if err != nil {
 			return nil, errors.New("scan error")
 		}

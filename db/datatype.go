@@ -55,6 +55,8 @@ func NewPrice(id string, pr string, lp string, lr string, hp string, hr string) 
 type GamePrice struct {
 	Id string
 	Name string
+	Cname string
+	Cover string
 	Region string
 	Price string
 }
