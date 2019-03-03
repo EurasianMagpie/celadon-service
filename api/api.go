@@ -107,14 +107,7 @@ func gamePrice(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			d = gin.H {
-				"id": r.Id,
-				"name": r.Name,
-				"cname": r.Cname,
-				"cover": r.Cover,
-				"region": r.Region,
-				"price": r.Price,
-			}
+			d = formGamePrice(*r)
 		}
 		c.JSON(200, formResult(0, "", d))
 	}
@@ -134,14 +127,7 @@ func searchPrice(c *gin.Context) {
 		if r != nil {
 			var games []gin.H
 			for _, e := range *r {
-				games = append(games, gin.H {
-					"id": e.Id,
-					"name": e.Name,
-					"cname": e.Cname,
-					"cover": e.Cover,
-					"region": e.Region,
-					"price": e.Price,
-				})
+				games = append(games, formGamePrice(e))
 			}
 			if games != nil {
 				d = gin.H {
@@ -150,13 +136,5 @@ func searchPrice(c *gin.Context) {
 			}
 		}
 		c.JSON(200, formResult(0, "", d))
-	}
-}
-
-func formResult(errno int, errmsg string, data gin.H) gin.H {
-	return gin.H {
-		"errno": errno,
-		"errmsg": errmsg,
-		"data" : data,
 	}
 }

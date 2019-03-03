@@ -20,11 +20,6 @@ func main()  {
 		fmt.Println("main | api")
 		r := gin.Default()
 		api.RegisterApiRoutes(r)
-		r.GET("/ping", func(c *gin.Context) {
-			c.JSON(200, gin.H{
-				"message": "pong - gin",
-			})
-		})
 		r.Run()
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon , deep:", *d==1)

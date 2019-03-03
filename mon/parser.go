@@ -128,13 +128,17 @@ func ParseRegion(nodePrice *html.Node) {
     //fmt.Println(region)
     for c := nodeRegion.FirstChild; c != nil; c = c.NextSibling {
         if c.Data == "th" {
-            var title string
-            for _, a := range c.Attr {
-                if a.Key == "title" {
-                    title = a.Val
-                    break
+            var title string = ""
+            img, err := getFirstElementByName(c, "img")
+            if err == nil {
+                for _, a := range img.Attr {
+                    if a.Key == "title" {
+                        title = a.Val
+                        break
+                    }
                 }
             }
+            
             if len(title) == 0 {
                 continue
             }
@@ -142,7 +146,7 @@ func ParseRegion(nodePrice *html.Node) {
             a := strings.LastIndex(rgn, "/>")
             b := strings.LastIndex(rgn, "<")
             abbr := rgn[a+2:b]
-            abbr = strings.Trim(abbr, " ")
+            abbr = strings.Trim(abbr, " \n")
             //fmt.Println(abbr, title)
             parseResult.Regions = append(parseResult.Regions, db.NewRegion(abbr, title))
         }

@@ -108,20 +108,22 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		return nil, errors.New("db error")
 	}
 	if stmtQueryGamePrice == nil {
-		stmt, err := d.Prepare(`select game.game_id, game.name, game.cname, game.cover, rpt.rgn, rpt.lp
-		from game,
-		(select region.cname as rgn, pt.lprice as lp
-		from region,
-		(select game_id, lregion, lprice from price where game_id=?) as pt
-		where region.region_id=pt.lregion) as rpt
-		where game.game_id=?`)
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+		from
+			price
+			inner join
+				(select game_id, name, cname, cover from game where game_id=?) as t1
+			on price.game_id=t1.game_id
+		`)
 		if err != nil {
 			return nil, err
 		}
 		stmtQueryGamePrice = stmt
 	}
 	var gamePrice GamePrice
-	err := stmtQueryGamePrice.QueryRow(id, id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Cname, &gamePrice.Cover, &gamePrice.Region, &gamePrice.Price)
+	err := stmtQueryGamePrice.QueryRow(id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Cname, &gamePrice.Cover, &gamePrice.Region, &gamePrice.Price)
 	if err != nil {
 		return nil, err
 	}
