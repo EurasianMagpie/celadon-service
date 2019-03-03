@@ -49,3 +49,7 @@ func GetConfig() Config {
 	}
 	return cfg
 }
+
+func GetMonDataDir() string {
+	return "/mondata"
+}

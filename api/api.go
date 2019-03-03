@@ -107,7 +107,7 @@ func gamePrice(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			d = formGamePrice(*r)
+			d = formGamePrice(c, *r)
 		}
 		c.JSON(200, formResult(0, "", d))
 	}
@@ -127,7 +127,7 @@ func searchPrice(c *gin.Context) {
 		if r != nil {
 			var games []gin.H
 			for _, e := range *r {
-				games = append(games, formGamePrice(e))
+				games = append(games, formGamePrice(c, e))
 			}
 			if games != nil {
 				d = gin.H {

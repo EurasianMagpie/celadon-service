@@ -20,6 +20,7 @@ func main()  {
 		fmt.Println("main | api")
 		r := gin.Default()
 		api.RegisterApiRoutes(r)
+		api.RegisterStaticRoutes(r)
 		r.Run()
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon , deep:", *d==1)

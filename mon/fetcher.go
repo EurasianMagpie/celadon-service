@@ -20,7 +20,7 @@ func monDataDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir := d + "/mondata"
+	dir := d + config.GetMonDataDir()
 	return dir, nil
 }
 
@@ -212,7 +212,7 @@ func gameCoverDir() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	dir := d + "/mondata/cover"
+	dir := d + config.GetMonDataDir() + "/cover"
 	return dir, nil
 }
 

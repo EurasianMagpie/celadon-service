@@ -5,12 +5,18 @@ import "github.com/gin-gonic/gin"
 import "github.com/EurasianMagpie/celadon/db"
 
 
-func formGamePrice(g db.GamePrice) gin.H {
+func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
+
+	p, err := getGameCoverFilePath(g.Id)
+	if err == nil {
+		p = "http://" + c.Request.Host + p
+	}
+
 	return gin.H {
 		"id": g.Id,
 		"name": g.Name,
 		"cname": g.Cname,
-		"cover": g.Cover,
+		"cover": p,
 		"region": g.Region,
 		"price": g.Price,
 	}
