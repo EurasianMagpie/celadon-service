@@ -11,13 +11,18 @@ func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
 	if err == nil {
 		p = "http://" + c.Request.Host + p
 	}
+	regionName := g.Region
+	r, err := db.FindRegion(g.Region)
+	if err == nil {
+		regionName = r.Cname
+	}
 
 	return gin.H {
 		"id": g.Id,
 		"name": g.Name,
 		"cname": g.Cname,
 		"cover": p,
-		"region": g.Region,
+		"region": regionName,
 		"price": g.Price,
 	}
 }

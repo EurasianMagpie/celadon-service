@@ -1,5 +1,6 @@
 package db
 
+import "errors"
 import "fmt"
 import "log"
 import "database/sql"
@@ -134,4 +135,13 @@ func updateRegion(db *sql.DB) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func FindRegion(abbr string) (*Region, error) {
+    for _, r := range regions {
+        if r.Region_id == abbr {
+            return &r, nil
+        }
+    }
+    return nil, errors.New("not found")
 }
