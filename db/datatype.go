@@ -18,13 +18,13 @@ type GameInfo struct {
 	Id string
 	Name string
 	Cname string
+	Ref string
 	Desc string
 	Language string
 	Cover string
 	ReleaseDate time.Time
 	Status int
 
-	Ref string
 	CoverUrl string
 	CoverType string
 }

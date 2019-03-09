@@ -53,6 +53,7 @@ func setupDB() {
         game_id INT NOT NULL,
         name VARCHAR(255) NOT NULL DEFAULT '',
         cname VARCHAR(255) NOT NULL DEFAULT '',
+        ref TEXT,
         description TEXT,
         language TEXT,
         cover TEXT,

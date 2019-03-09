@@ -202,9 +202,9 @@ func UpdateGame(gameInfo GameInfo) {
 	if stmtUpdateGame == nil {
 		fmt.Println("create stmtUpdateGame")
 		stmt, err := d.Prepare(`
-			INSERT INTO game (game_id, name, cname, description, language, cover, release_date, status) 
-			VALUES(?,?,?,?,?,?,?,?) 
-			ON DUPLICATE KEY UPDATE name=?, description=?, release_date=?
+			INSERT INTO game (game_id, name, cname, ref, description, language, cover, release_date, status) 
+			VALUES(?,?,?,?,?,?,?,?,?) 
+			ON DUPLICATE KEY UPDATE name=?, ref=?, description=?, release_date=?
 		`)
 		if err != nil {
 			//log.Fatal(err)
@@ -212,7 +212,7 @@ func UpdateGame(gameInfo GameInfo) {
 		}
 		stmtUpdateGame = stmt
 	}
-	_, err := stmtUpdateGame.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Desc, gameInfo.ReleaseDate)
+	_, err := stmtUpdateGame.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Ref, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Ref, gameInfo.Desc, gameInfo.ReleaseDate)
 	if err != nil {
 		panic(err)
 	}
