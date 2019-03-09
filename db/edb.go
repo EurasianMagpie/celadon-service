@@ -68,14 +68,14 @@ func QueryGameInfo(id string) (*GameInfo, error) {
 		return nil, errors.New("db error")
 	}
 	if stmtQueryGameInfo == nil {
-		stmt, err := d.Prepare(`select game_id, name, cname, description, language, cover, status from game where game_id=?`)
+		stmt, err := d.Prepare(`select game_id, name, cname, ref, description, language, cover, status from game where game_id=?`)
 		if err != nil {
 			return nil, err
 		}
 		stmtQueryGameInfo = stmt
 	}
 	var g GameInfo
-	err := stmtQueryGameInfo.QueryRow(id).Scan(&g.Id, &g.Name, &g.Cname, &g.Desc, &g.Language, &g.Cover, &g.Status)
+	err := stmtQueryGameInfo.QueryRow(id).Scan(&g.Id, &g.Name, &g.Cname, &g.Ref, &g.Desc, &g.Language, &g.Cover, &g.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -269,4 +269,8 @@ func IsGameDetialed(id string) bool {
 		return val
 	}
 	return false
+}
+
+func MarkGameDetailed(id string) {
+	mapCheckGameDetail[id] = true
 }
