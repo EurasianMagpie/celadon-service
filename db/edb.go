@@ -168,10 +168,10 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	return &gamePrices, nil
 }
 
-func UpdateRegion(region Region) {
+func UpdateRegion(region Region) bool {
 	d := getdb()
 	if d == nil {
-		return
+		return false
 	}
 
 	if stmtUpdateRegion == nil {
@@ -183,7 +183,7 @@ func UpdateRegion(region Region) {
 		`)
 		if err != nil {
 			//log.Fatal(err)
-			return
+			return false
 		}
 		stmtUpdateRegion = stmt
 	}
@@ -191,12 +191,13 @@ func UpdateRegion(region Region) {
 	if err != nil {
 		panic(err)
 	}
+	return nil == err
 }
 
-func UpdateGame(gameInfo GameInfo) {
+func UpdateGame(gameInfo GameInfo) bool {
 	d := getdb()
 	if d == nil {
-		return
+		return false
 	}
 
 	if stmtUpdateGame == nil {
@@ -208,7 +209,7 @@ func UpdateGame(gameInfo GameInfo) {
 		`)
 		if err != nil {
 			//log.Fatal(err)
-			return
+			return false
 		}
 		stmtUpdateGame = stmt
 	}
@@ -216,12 +217,13 @@ func UpdateGame(gameInfo GameInfo) {
 	if err != nil {
 		panic(err)
 	}
+	return err == nil
 }
 
-func UpdatePrice(price Price) {
+func UpdatePrice(price Price) bool {
 	d := getdb()
 	if d == nil {
-		return
+		return false
 	}
 
 	if stmtUpdatePrice == nil {
@@ -229,7 +231,7 @@ func UpdatePrice(price Price) {
 		stmt, err := d.Prepare("INSERT INTO price (game_id,price,discount,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
 		if err != nil {
 			//log.Fatal(err)
-			return
+			return false
 		}
 		stmtUpdatePrice = stmt
 	}
@@ -237,6 +239,7 @@ func UpdatePrice(price Price) {
 	if err != nil {
 		panic(err)
 	}
+	return err == nil
 }
 
 func ReCheckGameDetail() bool {

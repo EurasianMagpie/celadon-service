@@ -240,6 +240,75 @@ func parseDate(s string) time.Time {
     return dt
 }
 
+func DeepParseSingleGame(g *db.GameInfo) bool {
+    htm, err := FetchHtmlFromUrl(g.Ref)
+    if err != nil {
+        return false
+    }
+    doc, err := html.Parse(strings.NewReader(htm))
+    if err != nil {
+        return false
+    }
+    body, err := getFirstElementByName(doc, "body")
+    if err != nil {
+        return false
+    }
+
+    div, err := getFirstElementByNameAndAttr(body, "div", "class", "hero game-hero")
+    if err != nil {
+        return false
+    }
+    div, err = getFirstElementByNameAndAttr(div, "div", "class", "wrapper")
+    if err != nil {
+        return false
+    }
+
+    var title string
+    var desc string
+    var date string
+    var img string
+    var imgType string
+    for c:=div.FirstChild; c!=nil; c=c.NextSibling {
+        if c.Data == "picture" {
+            src, err := getFirstElementByName(c, "source")
+            if err != nil {
+                continue
+            }
+            srcset, err := getNodeAttr(src, "srcset")
+            if err != nil {
+                continue
+            }
+            r := strings.Split(srcset, " ")
+            img = r[0]
+            _t, err := getNodeAttr(src, "type")
+            s := strings.LastIndex(_t, "/")
+            _t = _t[s+1:]
+            imgType = _t
+        } else if c.Data == "div" {
+            for d:=c.FirstChild; d!=nil; d=d.NextSibling {
+                if d.Data == "h1" {
+                    title = simpleNodeContent(d, "h1")
+                } else if d.Data == "p" {
+                    desc = simpleNodeContent(d, "p")
+                } else if d.Data == "small" {
+                    date = simpleNodeContent(d, "small")
+                    //len("Released on ") = 12
+                    date = date[12:]
+                }
+            }
+        }
+    }
+
+    g.Name = title
+    g.Desc = desc
+    g.ReleaseDate = parseDate(date)
+    g.CoverUrl = img
+    g.CoverType = imgType
+    fmt.Println(g)
+    //fmt.Println(g.Name, g.ReleaseDate, date)
+    return true
+}
+
 func DeepParseGameInfo() {
     if !db.ReCheckGameDetail() {
         return
@@ -251,74 +320,10 @@ func DeepParseGameInfo() {
             break
         }//*/
         if db.IsGameDetialed(g.Id) {
-            continue
+            continue 
         }
 
-        htm, err := FetchHtmlFromUrl(g.Ref)
-        if err != nil {
-            continue
-        }
-        doc, err := html.Parse(strings.NewReader(htm))
-        if err != nil {
-            continue
-        }
-        body, err := getFirstElementByName(doc, "body")
-        if err != nil {
-            continue
-        }
-
-        div, err := getFirstElementByNameAndAttr(body, "div", "class", "hero game-hero")
-        if err != nil {
-            continue
-        }
-        div, err = getFirstElementByNameAndAttr(div, "div", "class", "wrapper")
-        if err != nil {
-            continue
-        }
-
-        var title string
-        var desc string
-        var date string
-        var img string
-        var imgType string
-        for c:=div.FirstChild; c!=nil; c=c.NextSibling {
-            if c.Data == "picture" {
-                src, err := getFirstElementByName(c, "source")
-                if err != nil {
-                    continue
-                }
-                srcset, err := getNodeAttr(src, "srcset")
-                if err != nil {
-                    continue
-                }
-                r := strings.Split(srcset, " ")
-                img = r[0]
-                _t, err := getNodeAttr(src, "type")
-                s := strings.LastIndex(_t, "/")
-                _t = _t[s+1:]
-                imgType = _t
-            } else if c.Data == "div" {
-                for d:=c.FirstChild; d!=nil; d=d.NextSibling {
-                    if d.Data == "h1" {
-                        title = simpleNodeContent(d, "h1")
-                    } else if d.Data == "p" {
-                        desc = simpleNodeContent(d, "p")
-                    } else if d.Data == "small" {
-                        date = simpleNodeContent(d, "small")
-                        //len("Released on ") = 12
-                        date = date[12:]
-                    }
-                }
-            }
-        }
-
-        g.Name = title
-        g.Desc = desc
-        g.ReleaseDate = parseDate(date)
-        g.CoverUrl = img
-        g.CoverType = imgType
-        fmt.Println(g)
-        //fmt.Println(g.Name, g.ReleaseDate, date)
+        DeepParseSingleGame(g)
     }
 }
 

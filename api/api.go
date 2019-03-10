@@ -3,6 +3,7 @@ package api
 import "github.com/gin-gonic/gin"
 
 import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon/ipc"
 
 
 func RegisterApiRoutes(r *gin.Engine) {
@@ -126,15 +127,22 @@ func searchPrice(c *gin.Context) {
 		d := gin.H{}
 		if r != nil {
 			var games []gin.H
+			var ids []string
 			for _, e := range *r {
 				games = append(games, formGamePrice(c, e))
+				ids = append(ids, e.Id)
 			}
 			if games != nil {
 				d = gin.H {
 					"games" : games,
 				}
 			}
+			invokeIpcTask(ids)
 		}
 		c.JSON(200, formResult(0, "", d))
 	}
+}
+
+func invokeIpcTask(id []string) {
+	go ipc.AddTask(id)
 }
