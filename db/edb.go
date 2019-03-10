@@ -17,6 +17,7 @@ var stmtQueryGameInfo *sql.Stmt
 var stmtQueryPriceInfo *sql.Stmt
 var stmtQueryGamePrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
+var stmtQueryRecommend *sql.Stmt
 
 var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGame *sql.Stmt
@@ -153,6 +154,43 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	var gamePrices []GamePrice
 	np := "%" + name + "%"
 	rows, err := stmtQuerySearchGamePrice.Query(np)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p GamePrice
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
+		if err != nil {
+			return nil, errors.New("scan error")
+		}
+		//fmt.Println(p)
+		gamePrices = append(gamePrices, p)
+	}
+	return &gamePrices, nil
+}
+
+func QueryRecommendGames(limit int) (*[]GamePrice, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQueryRecommend == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+		from 
+			price 
+			inner join 
+				(select game_id, name, cname, cover from game where cname!="" order by rand() limit ?) as t1 
+			on price.game_id=t1.game_id
+		`)
+		if err != nil {
+			return nil, err
+		}
+		stmtQueryRecommend = stmt
+	}
+	var gamePrices []GamePrice
+	rows, err := stmtQueryRecommend.Query(limit)
 	if err != nil {
 		return nil, err
 	}

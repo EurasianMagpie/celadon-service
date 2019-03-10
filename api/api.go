@@ -13,6 +13,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/pinfo", priceInfo)
 	apisubdomain.GET("/gp", gamePrice)
 	apisubdomain.GET("/sp", searchPrice)
+	apisubdomain.GET("/recommend", queryRecommend)
 }
 
 func regionInfo(c *gin.Context) {
@@ -121,6 +122,30 @@ func searchPrice(c *gin.Context) {
 		return
 	}
 	r, err := db.QuerySearchGamePrice(name)
+	if err != nil {
+		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
+	} else {
+		d := gin.H{}
+		if r != nil {
+			var games []gin.H
+			var ids []string
+			for _, e := range *r {
+				games = append(games, formGamePrice(c, e))
+				ids = append(ids, e.Id)
+			}
+			if games != nil {
+				d = gin.H {
+					"games" : games,
+				}
+			}
+			invokeIpcTask(ids)
+		}
+		c.JSON(200, formResult(0, "", d))
+	}
+}
+
+func queryRecommend(c *gin.Context) {
+	r, err := db.QueryRecommendGames(20)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
