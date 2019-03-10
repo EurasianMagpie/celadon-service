@@ -23,7 +23,8 @@ var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGame *sql.Stmt
 var stmtUpdatePrice *sql.Stmt
 
-var mapCheckGameDetail map[string]bool
+var stmtUpdateGameCname *sql.Stmt
+
 
 func getdb() *sql.DB {
 	if edb != nil {
@@ -213,7 +214,7 @@ func UpdateRegion(region Region) bool {
 	}
 
 	if stmtUpdateRegion == nil {
-		fmt.Println("create stmtUpdateRegion")
+		//fmt.Println("create stmtUpdateRegion")
 		stmt, err := d.Prepare(`
 			INSERT INTO region (region_id,name,cname,logo) 
 			VALUES(?,?,?,?) 
@@ -239,7 +240,7 @@ func UpdateGame(gameInfo GameInfo) bool {
 	}
 
 	if stmtUpdateGame == nil {
-		fmt.Println("create stmtUpdateGame")
+		//fmt.Println("create stmtUpdateGame")
 		stmt, err := d.Prepare(`
 			INSERT INTO game (game_id, name, cname, ref, description, language, cover, release_date, status) 
 			VALUES(?,?,?,?,?,?,?,?,?) 
@@ -265,7 +266,7 @@ func UpdatePrice(price Price) bool {
 	}
 
 	if stmtUpdatePrice == nil {
-		fmt.Println("create stmtUpdatePrice")
+		//fmt.Println("create stmtUpdatePrice")
 		stmt, err := d.Prepare("INSERT INTO price (game_id,price,discount,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
 		if err != nil {
 			//log.Fatal(err)
@@ -280,38 +281,26 @@ func UpdatePrice(price Price) bool {
 	return err == nil
 }
 
-func ReCheckGameDetail() bool {
+func UpdateGameCname(id string, cname string) bool {
 	d := getdb()
 	if d == nil {
 		return false
 	}
 
-	var m map[string]bool
-	m = make(map[string]bool)
-	rows, err := d.Query("select game_id, description from game")
-	if err != nil {
-		return false
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var id, desc string
-		err := rows.Scan(&id, &desc)
+	if stmtUpdateGameCname == nil {
+		//fmt.Println("create stmtUpdateGameCname")
+		stmt, err := d.Prepare(`
+			UPDATE game SET cname=? where game_id=?
+		`)
 		if err != nil {
+			//log.Fatal(err)
 			return false
 		}
-		m[id] = len(desc)>0
+		stmtUpdateGameCname = stmt
 	}
-	mapCheckGameDetail = m
-	return true
-}
-
-func IsGameDetialed(id string) bool {
-	if val, ok := mapCheckGameDetail[id]; ok {
-		return val
-	}
-	return false
-}
-
-func MarkGameDetailed(id string) {
-	mapCheckGameDetail[id] = true
+	_, err := stmtUpdateGameCname.Exec(cname, id)
+	//if err != nil {
+	//	panic(err)
+	//}
+	return err == nil
 }
