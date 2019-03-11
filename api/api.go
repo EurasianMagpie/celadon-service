@@ -52,14 +52,7 @@ func gameInfo(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			d = gin.H {
-				"id": r.Id,
-				"name": r.Name,
-				"cname": r.Cname,
-				"desc": r.Desc,
-				"lan": r.Language,
-				"cover": r.Cover,
-			}
+			d = formGameInfo(c, r)
 			c.JSON(200, formResult(0, "", d))
 		} else {
 			c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
