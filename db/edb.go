@@ -144,8 +144,9 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 		from 
 			price 
 			inner join 
-				(select game_id, name, cname, cover from game where name like ?) as t1 
+				(select game_id, name, cname, cover from game where name like ? or cname like ?) as t1 
 			on price.game_id=t1.game_id
+		order by t1.cname=""
 		`)
 		if err != nil {
 			return nil, err
@@ -154,7 +155,7 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	}
 	var gamePrices []GamePrice
 	np := "%" + name + "%"
-	rows, err := stmtQuerySearchGamePrice.Query(np)
+	rows, err := stmtQuerySearchGamePrice.Query(np, np)
 	if err != nil {
 		return nil, err
 	}
@@ -184,6 +185,7 @@ func QueryRecommendGames(limit int) (*[]GamePrice, error) {
 			inner join 
 				(select game_id, name, cname, cover from game where cname!="" order by rand() limit ?) as t1 
 			on price.game_id=t1.game_id
+		order by t1.cname
 		`)
 		if err != nil {
 			return nil, err
