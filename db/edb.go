@@ -16,6 +16,7 @@ var stmtQueryRegion *sql.Stmt
 var stmtQueryGameInfo *sql.Stmt
 var stmtQueryPriceInfo *sql.Stmt
 var stmtQueryGamePrice *sql.Stmt
+var stmtQueryGameFullPrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
 var stmtQueryRecommend *sql.Stmt
 
@@ -130,6 +131,30 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		return nil, err
 	}
 	return &gamePrice, nil
+}
+
+func QueryGameFullPrice(id string) (string, error) {
+	d := getdb()
+	if d == nil {
+		return "", errors.New("db error")
+	}
+	if stmtQueryGameFullPrice == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price 
+		from
+			price where game_id=?`)
+		if err != nil {
+			return "", err
+		}
+		stmtQueryGameFullPrice = stmt
+	}
+	var price string
+	err := stmtQueryGameFullPrice.QueryRow(id).Scan(&price)
+	if err != nil {
+		return "", err
+	}
+	return price, nil
 }
 
 func QuerySearchGamePrice(name string) (*[]GamePrice, error) {

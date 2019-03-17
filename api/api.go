@@ -10,7 +10,8 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain := r.Group("/api")
 	apisubdomain.GET("/rinfo", regionInfo)
 	apisubdomain.GET("/ginfo", gameInfo)
-	apisubdomain.GET("/pinfo", priceInfo)
+	//apisubdomain.GET("/pinfo", priceInfo)
+	apisubdomain.GET("/prank", priceRank)
 	apisubdomain.GET("/gp", gamePrice)
 	apisubdomain.GET("/sp", searchPrice)
 	apisubdomain.GET("/recommend", queryRecommend)
@@ -87,6 +88,10 @@ func priceInfo(c *gin.Context) {
 			c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 		}
 	}
+}
+
+func priceRank(c *gin.Context) {
+	QueryPriceRank(c)
 }
 
 func gamePrice(c *gin.Context) {

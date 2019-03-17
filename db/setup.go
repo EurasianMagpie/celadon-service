@@ -138,11 +138,18 @@ func updateRegion(db *sql.DB) {
 	}
 }
 
-func FindRegion(abbr string) (*Region, error) {
+func FindRegionByAbbr(abbr string) (*Region, error) {
     for _, r := range regions {
         if r.Region_id == abbr {
             return &r, nil
         }
+    }
+    return nil, errors.New("not found")
+}
+
+func FindRegionByIndex(index int) (*Region, error) {
+    if index < len(regions) {
+        return &regions[index], nil
     }
     return nil, errors.New("not found")
 }

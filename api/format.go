@@ -27,7 +27,7 @@ func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
 		p = "http://" + c.Request.Host + p
 	}
 	regionName := g.Region
-	r, err := db.FindRegion(g.Region)
+	r, err := db.FindRegionByAbbr(g.Region)
 	if err == nil {
 		regionName = r.Cname
 	}
