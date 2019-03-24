@@ -7,7 +7,7 @@ import "github.com/EurasianMagpie/celadon/ipc"
 
 
 func RegisterApiRoutes(r *gin.Engine) {
-	apisubdomain := r.Group("/api")
+	apisubdomain := r.Group("/celadon")
 	apisubdomain.GET("/rinfo", regionInfo)
 	apisubdomain.GET("/ginfo", gameInfo)
 	//apisubdomain.GET("/pinfo", priceInfo)

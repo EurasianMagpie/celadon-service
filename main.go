@@ -21,8 +21,8 @@ func main()  {
 		fmt.Println("main | api")
 		r := gin.Default()
 		api.RegisterApiRoutes(r)
-		api.RegisterStaticRoutes(r)
-		r.Run()
+		api.RegisterCoverRoutes(r)
+		r.Run("localhost:8080")
 	} else if strings.Compare(*t, "mon") == 0 {
 		fmt.Println("main | mon , deep:", *d==1)
 		mon.RunMonTask(*d==1)

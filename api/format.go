@@ -6,7 +6,7 @@ import "github.com/EurasianMagpie/celadon/db"
 
 
 func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {
-	p, err := getGameCoverFilePath(g.Id)
+	p, err := getGameCoverRefPath(g.Id)
 	if err == nil {
 		p = "http://" + c.Request.Host + p
 	}
@@ -22,7 +22,7 @@ func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {
 }
 
 func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
-	p, err := getGameCoverFilePath(g.Id)
+	p, err := getGameCoverRefPath(g.Id)
 	if err == nil {
 		p = "http://" + c.Request.Host + p
 	}
