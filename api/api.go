@@ -1,5 +1,7 @@
 package api
 
+import "strings"
+
 import "github.com/gin-gonic/gin"
 
 import "github.com/EurasianMagpie/celadon/db"
@@ -15,6 +17,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/gp", gamePrice)
 	apisubdomain.GET("/sp", searchPrice)
 	apisubdomain.GET("/recommend", queryRecommend)
+	apisubdomain.GET("/plist", queryPriceList)
 }
 
 func regionInfo(c *gin.Context) {
@@ -144,6 +147,36 @@ func searchPrice(c *gin.Context) {
 
 func queryRecommend(c *gin.Context) {
 	r, err := db.QueryRecommendGames(20)
+	if err != nil {
+		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
+	} else {
+		d := gin.H{}
+		if r != nil {
+			var games []gin.H
+			var ids []string
+			for _, e := range *r {
+				games = append(games, formGamePrice(c, e))
+				ids = append(ids, e.Id)
+			}
+			if games != nil {
+				d = gin.H {
+					"games" : games,
+				}
+			}
+			invokeIpcTask(ids)
+		}
+		c.JSON(200, formResult(0, "", d))
+	}
+}
+
+func queryPriceList(c *gin.Context) {
+	ids := c.Query("ids")
+	if len(ids) == 0 {
+		c.JSON(200, formResult(301, string("invalid param ids"), gin.H{}))
+		return
+	}
+	s := strings.Split(ids, ",")
+	r, err := db.QueryPriceListByIds(s)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {

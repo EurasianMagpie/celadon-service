@@ -19,6 +19,7 @@ var stmtQueryGamePrice *sql.Stmt
 var stmtQueryGameFullPrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
 var stmtQueryRecommend *sql.Stmt
+var stmtQueryMultiPrice *sql.Stmt
 
 var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGame *sql.Stmt
@@ -229,6 +230,39 @@ func QueryRecommendGames(limit int) (*[]GamePrice, error) {
 			return nil, errors.New("scan error")
 		}
 		//fmt.Println(p)
+		gamePrices = append(gamePrices, p)
+	}
+	return &gamePrices, nil
+}
+
+func QueryPriceListByIds(ids []string) (*[]GamePrice, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	// todo optmz ...
+	if stmtQueryMultiPrice == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+		from 
+			price 
+			inner join 
+				(select game_id, name, cname, cover from game where game_id=?) as t1 
+			on price.game_id=t1.game_id
+		`)
+		if err != nil {
+			return nil, err
+		}
+		stmtQueryMultiPrice = stmt
+	}
+	var gamePrices []GamePrice
+	for _, id := range ids {
+		var p GamePrice
+		err := stmtQueryMultiPrice.QueryRow(id).Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
+		if err != nil {
+			continue
+		}
 		gamePrices = append(gamePrices, p)
 	}
 	return &gamePrices, nil
