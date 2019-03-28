@@ -18,6 +18,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/sp", searchPrice)
 	apisubdomain.GET("/recommend", queryRecommend)
 	apisubdomain.GET("/plist", queryPriceList)
+	apisubdomain.GET("/hotwords", queryHotWords)
 }
 
 func regionInfo(c *gin.Context) {
@@ -194,6 +195,18 @@ func queryPriceList(c *gin.Context) {
 				}
 			}
 			invokeIpcTask(ids)
+		}
+		c.JSON(200, formResult(0, "", d))
+	}
+}
+
+func queryHotWords(c *gin.Context) {
+	hwd := GetCurrentHotWords()
+	if hwd == nil {
+		c.JSON(202, formResult(300, "something wrong ...", gin.H{}))
+	} else {
+		d := gin.H{
+			"hotwords" : hwd.Words,
 		}
 		c.JSON(200, formResult(0, "", d))
 	}
