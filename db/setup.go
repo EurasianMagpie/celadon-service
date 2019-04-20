@@ -74,6 +74,9 @@ func setupDB() {
         lregion VARCHAR(16) NOT NULL DEFAULT '',
         hprice VARCHAR(255) NOT NULL DEFAULT '',
         hregion VARCHAR(16) NOT NULL DEFAULT '',
+        lowestprice VARCHAR(255) NOT NULL DEFAULT '',
+        lowestregion VARCHAR(255) NOT NULL DEFAULT '',
+        islowest INT NOT NULL DEFAULT 0,
         PRIMARY KEY (game_id)
 		);`
 	_, err = db.Exec(c)
