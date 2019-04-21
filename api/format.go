@@ -15,9 +15,12 @@ func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {
 		"id": g.Id,
 		"name": g.Name,
 		"cname": g.Cname,
+		"publisher": g.Publisher,
 		"desc": g.Desc,
-		"lan": g.Language,
 		"cover": p,
+		"lan": g.Language,
+		"tags": g.Tags,
+		"readcard": g.RealCard,
 	}
 }
 
@@ -39,6 +42,22 @@ func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
 		"cover": p,
 		"region": regionName,
 		"price": g.Price,
+		"lowest": g.IsLowest,
+	}
+}
+
+func formPrice(c *gin.Context, p db.Price) gin.H {
+	rankData, _ := calcRegionPriceRank(p.Price)
+	return gin.H {
+		"id": p.Id,
+		"prices": formPriceRank(rankData),
+		"discount": p.Discount,
+		"lprice": p.LPrice,
+		"lregion": p.LRegion,
+		"hprice": p.HPrice,
+		"hregion": p.HRegion,
+		"lowestprice": p.LowestPrice,
+		"islowest": p.IsLowest,
 	}
 }
 

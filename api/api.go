@@ -12,8 +12,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain := r.Group("/celadon")
 	apisubdomain.GET("/rinfo", regionInfo)
 	apisubdomain.GET("/ginfo", gameInfo)
-	//apisubdomain.GET("/pinfo", priceInfo)
-	apisubdomain.GET("/prank", priceRank)
+	apisubdomain.GET("/pinfo", priceInfo)
 	apisubdomain.GET("/gp", gamePrice)
 	apisubdomain.GET("/sp", searchPrice)
 	apisubdomain.GET("/recommend", queryRecommend)
@@ -72,30 +71,16 @@ func priceInfo(c *gin.Context) {
 		return
 	}
 
-	r, err := db.QueryPriceInfo(id)
+	p, err := db.QueryPriceInfo(id)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
 		d := gin.H{}
-		if r != nil {
-			d = gin.H {
-				"id": r.Id,
-				"discount": r.Discount,
-				"price": r.Price,
-				"lprice": r.LPrice,
-				"lregion": r.LRegion,
-				"hprice": r.HPrice,
-				"hregion": r.HRegion,
-			}
-			c.JSON(200, formResult(0, "", d))
-		} else {
-			c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
+		if p != nil {
+			d = formPrice(c, *p)
 		}
+		c.JSON(200, formResult(0, "", d))
 	}
-}
-
-func priceRank(c *gin.Context) {
-	QueryPriceRank(c)
 }
 
 func gamePrice(c *gin.Context) {

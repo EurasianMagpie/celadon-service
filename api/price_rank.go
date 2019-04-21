@@ -70,26 +70,3 @@ func formPriceRank(priceList []regionPrice) []gin.H {
 	}
 	return r
 }
-
-func QueryPriceRank(c *gin.Context) {
-	id := c.Query("id")
-	if len(id) == 0 {
-		c.JSON(200, formResult(301, string("invalid param id"), gin.H{}))
-		return
-	}
-	r, err := db.QueryGameFullPrice(id)
-	if err != nil {
-		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
-	} else {
-		rankData, err := calcRegionPriceRank(r)
-		d := gin.H{}
-		if err == nil {
-			if (rankData != nil) {
-				d = gin.H {
-					"prices": formPriceRank(rankData),
-				}
-			}
-		}
-		c.JSON(200, formResult(0, "", d))
-	}
-}

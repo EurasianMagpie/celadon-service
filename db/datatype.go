@@ -18,11 +18,14 @@ type GameInfo struct {
 	Id string
 	Name string
 	Cname string
-	Ref string
-	Desc string
-	Language string
-	Cover string
+	Publisher string
 	ReleaseDate time.Time
+	Desc string
+	Cover string
+	Language string
+	Tags string
+	Ref string	
+	RealCard int
 	Status int
 
 	CoverUrl string
@@ -30,7 +33,9 @@ type GameInfo struct {
 }
 
 func NewGameInfo(id string, name string, ref string) GameInfo {
-	gameInfo := GameInfo{Id:id,Name:name,Cname:"",Desc:"",Language:"",Cover:"",Status:0}
+	gameInfo := GameInfo {
+		Id:id, Name:name, Cname:"", Publisher:"", Desc:"", Cover:"", Language:"", Tags:"", RealCard:0, Status:0,
+	}
 	dt, _ := time.Parse("2006-01-02", "2018-01-01")
 	gameInfo.ReleaseDate = dt
 	gameInfo.Ref = ref
@@ -45,10 +50,13 @@ type Price struct {
 	LRegion string
 	HPrice string
 	HRegion string
+	LowestPrice string
+	LowestRegion string
+	IsLowest int
 }
 
 func NewPrice(id string, pr string, lp string, lr string, hp string, hr string) Price {
-	price := Price{Id:id, Price:pr, Discount:"", LPrice:lp, LRegion:lr, HPrice:hp, HRegion:hr}
+	price := Price{Id:id, Price:pr, Discount:"", LPrice:lp, LRegion:lr, HPrice:hp, HRegion:hr, LowestPrice:"", LowestRegion:"", IsLowest:0}
 	return price
 }
 
@@ -59,4 +67,5 @@ type GamePrice struct {
 	Cover string
 	Region string
 	Price string
+	IsLowest int
 }

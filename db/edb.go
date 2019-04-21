@@ -17,7 +17,6 @@ var stmtQueryRegion *sql.Stmt
 var stmtQueryGameInfo *sql.Stmt
 var stmtQueryPriceInfo *sql.Stmt
 var stmtQueryGamePrice *sql.Stmt
-var stmtQueryGameFullPrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
 var stmtQueryRecommend *sql.Stmt
 var stmtQueryMultiPrice *sql.Stmt
@@ -65,14 +64,23 @@ func initAllStmts() {
 	}
 
 	if stmtQueryGameInfo == nil {
-		stmt, err := d.Prepare(`select game_id, name, cname, ref, description, language, cover, status from game where game_id=?`)
+		stmt, err := d.Prepare(`
+		select
+			game_id, name, cname, publisher, description, cover, language, ref, realcard, status 
+		from
+		    game where game_id=?
+		`)
 		if err == nil {
 			stmtQueryGameInfo = stmt
 		}
 	}
 
 	if stmtQueryPriceInfo == nil {
-		stmt, err := d.Prepare(`select game_id, price, discount, lprice, lregion, hprice, hregion from price where game_id=?`)
+		stmt, err := d.Prepare(`
+		select 
+			game_id, price, discount, lprice, lregion, hprice, hregion, lowestprice, lowestregion, islowest
+		from
+			price where game_id=?`)
 		if err == nil {
 			stmtQueryPriceInfo = stmt
 		}
@@ -81,7 +89,7 @@ func initAllStmts() {
 	if stmtQueryGamePrice == nil {
 		stmt, err := d.Prepare(`
 		select 
-			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
 		from
 			price
 			inner join
@@ -93,21 +101,10 @@ func initAllStmts() {
 		}
 	}
 
-	if stmtQueryGameFullPrice == nil {
-		stmt, err := d.Prepare(`
-		select 
-			price 
-		from
-			price where game_id=?`)
-		if err == nil {
-			stmtQueryGameFullPrice = stmt
-		}
-	}
-
 	if stmtQuerySearchGamePrice == nil {
 		stmt, err := d.Prepare(`
 		select 
-			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
 		from 
 			price 
 			inner join 
@@ -123,7 +120,7 @@ func initAllStmts() {
 	if stmtQueryRecommend == nil {
 		stmt, err := d.Prepare(`
 		select 
-			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
 		from 
 			price 
 			inner join 
@@ -140,7 +137,7 @@ func initAllStmts() {
 	if stmtQueryMultiPrice == nil {
 		stmt, err := d.Prepare(`
 		select 
-			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
 		from 
 			price 
 			inner join 
@@ -255,8 +252,11 @@ func QueryGameInfo(id string) (*GameInfo, error) {
 	if stmtQueryGameInfo == nil {
 		return nil, errors.New("db stmt init failed")
 	}
+
 	var g GameInfo
-	err := stmtQueryGameInfo.QueryRow(id).Scan(&g.Id, &g.Name, &g.Cname, &g.Ref, &g.Desc, &g.Language, &g.Cover, &g.Status)
+	err := stmtQueryGameInfo.QueryRow(id).Scan(
+		&g.Id, &g.Name, &g.Cname, &g.Publisher, &g.Desc, &g.Cover, &g.Language, &g.Ref, &g.RealCard, &g.Status,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func QueryPriceInfo(id string) (*Price, error) {
 		return nil, errors.New("db stmt init failed")
 	}
 	var p Price
-	err := stmtQueryPriceInfo.QueryRow(id).Scan(&p.Id, &p.Price, &p.Discount, &p.LPrice, &p.LRegion, &p.HPrice, &p.HRegion)
+	err := stmtQueryPriceInfo.QueryRow(id).Scan(&p.Id, &p.Price, &p.Discount, &p.LPrice, &p.LRegion, &p.HPrice, &p.HRegion, &p.LowestPrice, &p.LowestRegion, &p.IsLowest)
 	if err != nil {
 		return nil, err
 	}
@@ -288,27 +288,11 @@ func QueryGamePrice(id string) (*GamePrice, error) {
 		return nil, errors.New("db stmt init failed")
 	}
 	var gamePrice GamePrice
-	err := stmtQueryGamePrice.QueryRow(id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Cname, &gamePrice.Cover, &gamePrice.Region, &gamePrice.Price)
+	err := stmtQueryGamePrice.QueryRow(id).Scan(&gamePrice.Id, &gamePrice.Name, &gamePrice.Cname, &gamePrice.Cover, &gamePrice.Region, &gamePrice.Price, &gamePrice.IsLowest)
 	if err != nil {
 		return nil, err
 	}
 	return &gamePrice, nil
-}
-
-func QueryGameFullPrice(id string) (string, error) {
-	d := getdb()
-	if d == nil {
-		return "", errors.New("db error")
-	}
-	if stmtQueryGameFullPrice == nil {
-		return "", errors.New("db stmt init failed")
-	}
-	var price string
-	err := stmtQueryGameFullPrice.QueryRow(id).Scan(&price)
-	if err != nil {
-		return "", err
-	}
-	return price, nil
 }
 
 func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
@@ -327,7 +311,7 @@ func QuerySearchGamePrice(name string) (*[]GamePrice, error) {
 	}
 	for rows.Next() {
 		var p GamePrice
-		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price, &p.IsLowest)
 		if err != nil {
 			return nil, errors.New("scan error")
 		}
@@ -352,7 +336,7 @@ func QueryRecommendGames(limit int) (*[]GamePrice, error) {
 	}
 	for rows.Next() {
 		var p GamePrice
-		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price, &p.IsLowest)
 		if err != nil {
 			return nil, errors.New("scan error")
 		}
@@ -374,7 +358,7 @@ func QueryPriceListByIds(ids []string) (*[]GamePrice, error) {
 	var gamePrices []GamePrice
 	for _, id := range ids {
 		var p GamePrice
-		err := stmtQueryMultiPrice.QueryRow(id).Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price)
+		err := stmtQueryMultiPrice.QueryRow(id).Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price, &p.IsLowest)
 		if err != nil {
 			continue
 		}
