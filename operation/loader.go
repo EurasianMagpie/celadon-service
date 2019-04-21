@@ -8,26 +8,33 @@ import (
 import "github.com/EurasianMagpie/celadon/db"
 
 
-type LocalData struct {
+type OpData struct {
 	Cname map[string]string `json:"cname"`
+	RealCard map[string]int `json:"realcard"`
 }
 
-var localData LocalData
+var dataFileName = "data/opdata.json"
+var opData OpData
 
-func UpdateCnameFromLocalData() {
-	file, err := os.Open("data/cname.json")
+func LoadOpData() {
+	file, err := os.Open(dataFileName)
 	if err != nil {
 		fmt.Println("config.load | error:", err)
 	}
 	defer file.Close()
 	decoder := json.NewDecoder(file)
-	err = decoder.Decode(&localData)
+	err = decoder.Decode(&opData)
 	if err != nil {
 		fmt.Println("config.load | error:", err)
 	}
 
-	for k, v := range localData.Cname {
+	for k, v := range opData.Cname {
 		fmt.Println("Update CName > ", k, v)
 		db.UpdateGameCname(k, v)
+	}
+
+	for k, v := range opData.RealCard {
+		fmt.Println("Update RealCard > ", k, v)
+		db.UpdateGameRealCard(k, v)
 	}
 }

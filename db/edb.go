@@ -30,6 +30,7 @@ var stmtUpdateLowestPrice *sql.Stmt
 var stmtUpdateLowestFlag *sql.Stmt
 
 var stmtUpdateGameCname *sql.Stmt
+var stmtUpdateGameRealCard *sql.Stmt
 
 func init() {
 	initAllStmts()
@@ -159,7 +160,6 @@ func initAllStmts() {
 			ON DUPLICATE KEY UPDATE name=?
 		`)
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdateRegion = stmt
 		}
 	}
@@ -172,7 +172,6 @@ func initAllStmts() {
 			ON DUPLICATE KEY UPDATE name=?, ref=?, description=?, release_date=?
 		`)
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdateGame = stmt
 		}
 	}
@@ -181,7 +180,6 @@ func initAllStmts() {
 		//fmt.Println("create stmtUpdatePrice")
 		stmt, err := d.Prepare("INSERT INTO price (game_id,price,discount,lprice,lregion,hprice,hregion) VALUES(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE price=?,lprice=?,lregion=?,hprice=?,hregion=?")
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdatePrice = stmt
 		}
 	}
@@ -190,7 +188,6 @@ func initAllStmts() {
 		//fmt.Println("create stmtUpdateQueryLowestPrice")
 		stmt, err := d.Prepare("select lowestprice from price where game_id=?")
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdateQueryLowestPrice = stmt
 		}
 	}
@@ -199,7 +196,6 @@ func initAllStmts() {
 		//fmt.Println("create stmtUpdateLowestPrice")
 		stmt, err := d.Prepare("UPDATE price SET lowestprice=?, lowestregion=?, islowest=1 where game_id=?")
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdateLowestPrice = stmt
 		}
 	}
@@ -208,8 +204,27 @@ func initAllStmts() {
 		//fmt.Println("create stmtUpdateLowestFlag")
 		stmt, err := d.Prepare("UPDATE price SET islowest=? where game_id=?")
 		if err == nil {
-			//log.Fatal(err)
 			stmtUpdateLowestFlag = stmt
+		}
+	}
+
+	if stmtUpdateGameCname == nil {
+		//fmt.Println("create stmtUpdateGameCname")
+		stmt, err := d.Prepare(`
+			UPDATE game SET cname=? where game_id=?
+		`)
+		if err == nil {
+			stmtUpdateGameCname = stmt
+		}
+	}
+
+	if stmtUpdateGameRealCard == nil {
+		//fmt.Println("create stmtUpdateGameRealCard")
+		stmt, err := d.Prepare(`
+			UPDATE game SET realcard=? where game_id=?
+		`)
+		if err == nil {
+			stmtUpdateGameRealCard = stmt
 		}
 	}
 }
@@ -426,17 +441,25 @@ func UpdateGameCname(id string, cname string) bool {
 	}
 
 	if stmtUpdateGameCname == nil {
-		//fmt.Println("create stmtUpdateGameCname")
-		stmt, err := d.Prepare(`
-			UPDATE game SET cname=? where game_id=?
-		`)
-		if err != nil {
-			//log.Fatal(err)
-			return false
-		}
-		stmtUpdateGameCname = stmt
+		return false
 	}
 	_, err := stmtUpdateGameCname.Exec(cname, id)
+	//if err != nil {
+	//	panic(err)
+	//}
+	return err == nil
+}
+
+func UpdateGameRealCard(id string, realcard int) bool {
+	d := getdb()
+	if d == nil {
+		return false
+	}
+
+	if stmtUpdateGameRealCard == nil {
+		return false
+	}
+	_, err := stmtUpdateGameRealCard.Exec(realcard, id)
 	//if err != nil {
 	//	panic(err)
 	//}

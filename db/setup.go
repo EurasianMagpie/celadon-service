@@ -53,12 +53,16 @@ func setupDB() {
         game_id INT NOT NULL,
         name VARCHAR(255) NOT NULL DEFAULT '',
         cname VARCHAR(255) NOT NULL DEFAULT '',
-        ref TEXT,
-        description TEXT,
-        language TEXT,
-        cover TEXT,
+        publisher VARCHAR(255) NOT NULL DEFAULT '',
         release_date DATE,
+        description TEXT,
+        cover TEXT,
+        language TEXT,
+        tags TEXT,
+        realcard INT NOT NULL DEFAULT 0,
         status INT NOT NULL DEFAULT 0,
+        priority INT NOT NULL DEFAULT 0,
+        ref TEXT,
         PRIMARY KEY (game_id)
         );`
 	_, err = db.Exec(c)
