@@ -39,7 +39,18 @@ func simpleNodeContent(n *html.Node, nodeName string) string {
     tag := "<"+nodeName+">"
     a := strings.Index(s, tag)
     b := strings.Index(s, "</"+nodeName+">")
-    return s[a+len(tag):b]
+    r := ""
+    if a == -1 {
+        tag1 := ">"
+        a1 := strings.Index(s, tag1)
+        r = s[a1+1:b]
+    } else {
+        r = s[a+len(tag):b]
+    }
+    if len(r) > 0 {
+        r = strings.Trim(r, " \n")
+    }
+    return r
 }
 
 func getNodeAttr(n *html.Node, key string) (string, error) {
@@ -184,9 +195,20 @@ func ParseGamePrice(nodePrice *html.Node) {
                 }
 
                 gname := renderNode(c)
-                a := strings.LastIndex(gname, "\">")
+                a := strings.Index(gname, "\">")
                 b := strings.LastIndex(gname, "</a")
-                name = gname[a+2:b]
+                gname1 := gname[a+2:b]
+                span := strings.Index(gname1, "<span")
+                if span == -1 {
+                    name = strings.Trim(gname1, " \n")
+                } else {
+                    sp1 := strings.Index(gname1, ">")
+                    sp2 := strings.Index(gname1, "</span>")
+                    n1 := gname1[sp1+1:sp2]
+                    n2 := gname1[sp2+7:]
+                    name = strings.Trim(n1 + " " + n2, " \n")
+                    name = strings.Trim(n1, " \n") + " " + strings.Trim(n2, " \n")
+                }
             } else if c.Data == "td" {
                 p := renderNode(c)
                 a := strings.Index(p, ">")

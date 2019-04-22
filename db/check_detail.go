@@ -23,6 +23,7 @@ func ReCheckGameDetail() bool {
 			return false
 		}
 		m[id] = len(desc)>0
+		//fixGameDesc(id, desc)
 	}
 	mapCheckGameDetail = m
 	return true
