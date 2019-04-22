@@ -20,7 +20,7 @@ func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {
 		"cover": p,
 		"lan": g.Language,
 		"tags": g.Tags,
-		"readcard": g.RealCard,
+		"realcard": g.RealCard,
 	}
 }
 
@@ -50,7 +50,7 @@ func formPrice(c *gin.Context, p db.Price) gin.H {
 	rankData, _ := calcRegionPriceRank(p.Price)
 	return gin.H {
 		"id": p.Id,
-		"prices": formPriceRank(rankData),
+		"rank": formPriceRank(rankData),
 		"discount": p.Discount,
 		"lprice": p.LPrice,
 		"lregion": p.LRegion,
