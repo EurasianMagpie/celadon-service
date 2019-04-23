@@ -8,6 +8,7 @@ import (
 	"container/list"
 	"sync"
 	"errors"
+	"time"
 )
 
 import "github.com/EurasianMagpie/celadon/mon"
@@ -76,6 +77,17 @@ func taskProc() {
 	}
 }
 
+func idleProc() {
+	for {
+		time.Sleep(time.Duration(30)*time.Second)
+		if !taskList.empty() {
+			continue
+		}
+		arg := NewTaskArg(db.FindAnyUnDetailedGames())
+		taskList.push(&arg)
+	}
+}
+
 var taskList *CcList
 
 type Worker int
@@ -86,6 +98,7 @@ func RunWorker() {
 	taskList = NewCcList()
 
 	go taskProc()
+	go idleProc()
 
 	worker := new(Worker)
 	rpc.Register(worker)
