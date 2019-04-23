@@ -22,7 +22,8 @@ var stmtQueryRecommend *sql.Stmt
 var stmtQueryMultiPrice *sql.Stmt
 
 var stmtUpdateRegion *sql.Stmt
-var stmtUpdateGame *sql.Stmt
+var stmtUpdateGameSimple *sql.Stmt
+var stmtUpdateGameFull *sql.Stmt
 var stmtUpdatePrice *sql.Stmt
 var stmtUpdateQueryLowestPrice *sql.Stmt
 var stmtUpdateLowestPrice *sql.Stmt
@@ -161,15 +162,27 @@ func initAllStmts() {
 		}
 	}
 
-	if stmtUpdateGame == nil {
-		//fmt.Println("create stmtUpdateGame")
+	if stmtUpdateGameSimple == nil {
+		//fmt.Println("create stmtUpdateGameSimple")
+		stmt, err := d.Prepare(`
+			INSERT INTO game (game_id, name, cname, ref, description, language, cover, release_date, status) 
+			VALUES(?,?,?,?,?,?,?,?,?) 
+			ON DUPLICATE KEY UPDATE name=?, ref=?
+		`)
+		if err == nil {
+			stmtUpdateGameSimple = stmt
+		}
+	}
+	
+	if stmtUpdateGameFull == nil {
+		//fmt.Println("create stmtUpdateGameFull")
 		stmt, err := d.Prepare(`
 			INSERT INTO game (game_id, name, cname, ref, description, language, cover, release_date, status) 
 			VALUES(?,?,?,?,?,?,?,?,?) 
 			ON DUPLICATE KEY UPDATE name=?, ref=?, description=?, release_date=?
 		`)
 		if err == nil {
-			stmtUpdateGame = stmt
+			stmtUpdateGameFull = stmt
 		}
 	}
 
@@ -383,16 +396,32 @@ func UpdateRegion(region Region) bool {
 	return nil == err
 }
 
-func UpdateGame(gameInfo GameInfo) bool {
+func UpdateGameSimple(gameInfo GameInfo) bool {
 	d := getdb()
 	if d == nil {
 		return false
 	}
 
-	if stmtUpdateGame == nil {
+	if stmtUpdateGameSimple == nil {
 		return false
 	}
-	_, err := stmtUpdateGame.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Ref, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Ref, gameInfo.Desc, gameInfo.ReleaseDate)
+	_, err := stmtUpdateGameSimple.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Ref, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Ref)
+	if err != nil {
+		panic(err)
+	}
+	return err == nil
+}
+
+func UpdateGameFull(gameInfo GameInfo) bool {
+	d := getdb()
+	if d == nil {
+		return false
+	}
+
+	if stmtUpdateGameFull == nil {
+		return false
+	}
+	_, err := stmtUpdateGameFull.Exec(gameInfo.Id, gameInfo.Name, gameInfo.Cname, gameInfo.Ref, gameInfo.Desc, gameInfo.Language, gameInfo.Cover, gameInfo.ReleaseDate, gameInfo.Status, gameInfo.Name, gameInfo.Ref, gameInfo.Desc, gameInfo.ReleaseDate)
 	if err != nil {
 		panic(err)
 	}

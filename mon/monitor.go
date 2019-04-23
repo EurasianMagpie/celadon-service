@@ -13,7 +13,7 @@ func RunMonTask(deep bool) {
 	if err != nil {
 		return
 	}
-	UpdateResult(result)
+	UpdateResult(result, deep)
 }
 
 func DeepFetchGame(id string) {
@@ -38,7 +38,7 @@ func DeepFetchGame(id string) {
 		return
 	}
 
-	ok = db.UpdateGame(*ginfo)
+	ok = db.UpdateGameFull(*ginfo)
 	if !ok {
 		fmt.Println("DeepFetchGame > ", id, " db.UpdateGame failed")
 	}

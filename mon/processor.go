@@ -3,7 +3,7 @@ package mon
 import "github.com/EurasianMagpie/celadon/db"
 
 
-func UpdateResult(result *ParseResult) {
+func UpdateResult(result *ParseResult, deep bool) {
 	// fetch gameinfo.cover image
 
 	// update table region, game, price
@@ -13,7 +13,11 @@ func UpdateResult(result *ParseResult) {
 	}
 
 	for _, game := range result.Games {
-		db.UpdateGame(game)
+		if deep {
+			db.UpdateGameFull(game)
+		} else {
+			db.UpdateGameSimple(game)
+		}
 
 		FetchGameCoverIfNeeded(game.Id, game.CoverUrl, game.CoverType)
 	}//*/
