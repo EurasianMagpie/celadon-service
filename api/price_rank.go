@@ -23,7 +23,7 @@ func calcRegionPriceRank(prices string) ([]regionPrice, error) {
 	for i, e := range s {
 		f, err := strconv.ParseFloat(e, 64)
 		if err != nil {
-			f = 0.0
+			continue
 		}
 		cur := regionPrice{i, f, e}
 

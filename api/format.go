@@ -3,6 +3,7 @@ package api
 import "github.com/gin-gonic/gin"
 
 import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon/operation"
 
 
 func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {
@@ -35,6 +36,9 @@ func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
 		regionName = r.Cname
 	}
 
+	if !operation.HasCname(g.Id) {
+		g.IsLowest = 0
+	}
 	return gin.H {
 		"id": g.Id,
 		"name": g.Name,
@@ -48,6 +52,10 @@ func formGamePrice(c *gin.Context, g db.GamePrice) gin.H {
 
 func formPrice(c *gin.Context, p db.Price) gin.H {
 	rankData, _ := calcRegionPriceRank(p.Price)
+	if !operation.HasCname(p.Id) {
+		p.LowestPrice = ""
+		p.IsLowest = 0
+	}
 	return gin.H {
 		"id": p.Id,
 		"rank": formPriceRank(rankData),

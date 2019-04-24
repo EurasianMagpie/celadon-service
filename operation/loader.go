@@ -16,7 +16,11 @@ type OpData struct {
 var dataFileName = "data/opdata.json"
 var opData OpData
 
-func LoadOpData() {
+func init() {
+	load()
+}
+
+func load() {
 	file, err := os.Open(dataFileName)
 	if err != nil {
 		fmt.Println("config.load | error:", err)
@@ -27,6 +31,9 @@ func LoadOpData() {
 	if err != nil {
 		fmt.Println("config.load | error:", err)
 	}
+}
+
+func LoadUpdateOpData() {
 
 	for k, v := range opData.Cname {
 		fmt.Println("Update CName > ", k, v)
@@ -37,4 +44,13 @@ func LoadOpData() {
 		fmt.Println("Update RealCard > ", k, v)
 		db.UpdateGameRealCard(k, v)
 	}
+}
+
+func HasCname(id string) bool {
+	for k, _ := range opData.Cname {
+		if k == id {
+			return true
+		}
+	}
+	return false
 }
