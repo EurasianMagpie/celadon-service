@@ -40,12 +40,12 @@ func MarkGameDetailed(id string) {
 	mapCheckGameDetail[id] = true
 }
 
-func FindAnyUnDetailedGames() []string {
+func FindAnyUnDetailedGames(count int) []string {
 	var ids []string
 	for k, v := range mapCheckGameDetail {
 		if !v {
 			ids = append(ids, k)
-			if len(ids) > 2 {
+			if len(ids) > count {
 				break
 			}
 		}

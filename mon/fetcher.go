@@ -168,7 +168,7 @@ func isFileExist(fname string) bool {
 	return true
 }
 
-func isCacheValid() bool {
+func IsCacheValid() bool {
 	curDate := currentDate()
 	if strings.Compare(lastFetchDate(), curDate) == 0 {
 		fname, err := monCacheFilePath()
@@ -198,7 +198,7 @@ func fetchPageLocal() (string, error) {
 }
 
 func FetchPage() (string, error) {
-	if isCacheValid() {
+	if IsCacheValid() {
 		r1, err := fetchPageLocal()
 		if err == nil {
 			return r1, nil

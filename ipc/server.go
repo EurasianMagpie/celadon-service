@@ -8,7 +8,6 @@ import (
 	"container/list"
 	"sync"
 	"errors"
-	"time"
 )
 
 import "github.com/EurasianMagpie/celadon/mon"
@@ -53,7 +52,7 @@ func (l *CcList)empty() bool {
 
 
 
-func (t *Worker) AddTask(arg *TaskArg, reply *int) error {
+func (t *Server) AddTask(arg *TaskArg, reply *int) error {
 	if arg != nil {
 		*reply = len(arg.Id)
 		taskList.push(arg)
@@ -61,6 +60,15 @@ func (t *Worker) AddTask(arg *TaskArg, reply *int) error {
 	}
 	return nil
 }
+
+func GenerateIdleTask() {
+	if !taskList.empty() {
+		return
+	}
+	arg := NewTaskArg(db.FindAnyUnDetailedGames(10))
+	taskList.push(&arg)
+}
+
 
 func taskProc() {
 	for {
@@ -77,31 +85,19 @@ func taskProc() {
 	}
 }
 
-func idleProc() {
-	for {
-		time.Sleep(time.Duration(30)*time.Second)
-		if !taskList.empty() {
-			continue
-		}
-		arg := NewTaskArg(db.FindAnyUnDetailedGames())
-		taskList.push(&arg)
-	}
-}
-
 var taskList *CcList
 
-type Worker int
+type Server int
 
-func RunWorker() {
+func RunServer() {
 	db.ReCheckGameDetail()
 
 	taskList = NewCcList()
 
 	go taskProc()
-	go idleProc()
 
-	worker := new(Worker)
-	rpc.Register(worker)
+	server := new(Server)
+	rpc.Register(server)
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", ":24693")
 	if e != nil {

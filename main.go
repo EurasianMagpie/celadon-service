@@ -9,7 +9,7 @@ import "github.com/gin-gonic/gin"
 //import "github.com/EurasianMagpie/celadon/debug"
 import "github.com/EurasianMagpie/celadon/api"
 import "github.com/EurasianMagpie/celadon/mon"
-import "github.com/EurasianMagpie/celadon/ipc"
+import "github.com/EurasianMagpie/celadon/worker"
 
 func main()  {
 	//debug.Info()
@@ -28,7 +28,7 @@ func main()  {
 		mon.RunMonTask(*d==1)
 	} else if strings.Compare(*t, "worker") == 0 {
 		fmt.Println("main | worker")
-		ipc.RunWorker()
+		worker.RunWorker()
 	} else {
 		fmt.Println("Please specify process type")
 	}
