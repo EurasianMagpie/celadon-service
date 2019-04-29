@@ -11,6 +11,7 @@ import "time"
 import "golang.org/x/net/html"
 
 import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon/util"
 
 
 var defaultDate time.Time
@@ -238,6 +239,10 @@ func ParseGamePrice(nodePrice *html.Node) {
             }
         }
         if len(name) > 0 && len(price) > 0 {
+            b, r := util.UnEscape(name)
+            if b {
+                name = r
+            }
             //fmt.Println(id, name, price)
             //fmt.Println("lrgn:", regions[lrgn].Name, " lprice:", lp, " hrgn:", regions[hrgn].Name, " hprice:", hp)
             parseResult.Games = append(parseResult.Games, db.NewGameInfo(id, name, ref))
@@ -319,6 +324,11 @@ func DeepParseSingleGame(g *db.GameInfo) bool {
                 }
             }
         }
+    }
+
+    b, r := util.UnEscape(desc)
+    if b {
+        desc = r
     }
 
     g.Name = title

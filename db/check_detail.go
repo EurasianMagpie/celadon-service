@@ -23,7 +23,8 @@ func ReCheckGameDetail() bool {
 			return false
 		}
 		m[id] = len(desc)>0
-		//fixGameDesc(id, desc)
+		//fixGameDesc(id, desc)	// done
+		//fixUnEscapedDesc(id, desc)	// done
 	}
 	mapCheckGameDetail = m
 	return true
