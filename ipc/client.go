@@ -34,10 +34,10 @@ func AddTask(id []string) (error) {
 
 	arg := NewTaskArg(id)
 	var reply int
-	addTaskCall := c.Go("Worker.AddTask", arg, &reply, nil)
+	addTaskCall := c.Go("Server.AddTask", arg, &reply, nil)
 	replyCall := <-addTaskCall.Done
 	if replyCall.Error != nil {
-		fmt.Println("Worker error:", replyCall.Error)
+		fmt.Println("Server error:", replyCall.Error)
 		defer c.Close()
 		invalidClient()
 		return replyCall.Error

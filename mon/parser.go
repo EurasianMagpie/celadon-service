@@ -326,7 +326,11 @@ func DeepParseSingleGame(g *db.GameInfo) bool {
         }
     }
 
-    b, r := util.UnEscape(desc)
+    b, r := util.UnEscape(title)
+    if b {
+        title = r
+    }
+    b, r = util.UnEscape(desc)
     if b {
         desc = r
     }
