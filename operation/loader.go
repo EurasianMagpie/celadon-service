@@ -7,10 +7,18 @@ import (
 )
 import "github.com/EurasianMagpie/celadon/db"
 
+type GameData struct {
+	Cname string `json:"cname"`
+	RealCard int `json:"card"`
+	Publisher string `json:"publisher"`
+	ReleaseTime string `json:"time"`
+	Lowest string `json:"lowest"`
+}
 
 type OpData struct {
-	Cname map[string]string `json:"cname"`
-	RealCard map[string]int `json:"realcard"`
+	//Cname map[string]string `json:"cname"`
+	//RealCard map[string]int `json:"realcard"`
+	Data map[string]GameData `json:"data"`
 }
 
 var dataFileName = "data/opdata.json"
@@ -35,22 +43,20 @@ func load() {
 
 func LoadUpdateOpData() {
 
-	for k, v := range opData.Cname {
-		fmt.Println("Update CName > ", k, v)
-		db.UpdateGameCname(k, v)
-	}
-
-	for k, v := range opData.RealCard {
-		fmt.Println("Update RealCard > ", k, v)
-		db.UpdateGameRealCard(k, v)
+	for k, data := range opData.Data {
+		fmt.Println("Update OpData > ", k, data)
+		if len(data.Cname) > 0 {
+			db.UpdateGameCname(k, data.Cname)
+		}
+		if data.RealCard > 0 {
+			db.UpdateGameRealCard(k, data.RealCard)
+		}
 	}
 }
 
 func HasCname(id string) bool {
-	for k, _ := range opData.Cname {
-		if k == id {
-			return true
-		}
+	if data, ok := opData.Data[id]; ok {
+		return len(data.Cname) > 0
 	}
 	return false
 }
