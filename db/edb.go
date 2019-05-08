@@ -20,6 +20,8 @@ var stmtQueryGamePrice *sql.Stmt
 var stmtQuerySearchGamePrice *sql.Stmt
 var stmtQueryRecommend *sql.Stmt
 var stmtQueryMultiPrice *sql.Stmt
+var stmtQueryLatest *sql.Stmt
+var stmtQueryRealCard *sql.Stmt
 
 var stmtUpdateRegion *sql.Stmt
 var stmtUpdateGameSimple *sql.Stmt
@@ -147,6 +149,36 @@ func initAllStmts() {
 		`)
 		if err == nil {
 			stmtQueryMultiPrice = stmt
+		}
+	}
+
+	if stmtQueryLatest == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
+		from 
+			price 
+			inner join 
+				(select game_id, name, cname, cover from game order by release_date desc limit ?) as t1 
+			on price.game_id=t1.game_id
+		`)
+		if err == nil {
+			stmtQueryLatest = stmt
+		}
+	}
+
+	if stmtQueryRealCard == nil {
+		stmt, err := d.Prepare(`
+		select 
+			price.game_id, t1.name, t1.cname, t1.cover, price.lregion, price.lprice, price.islowest 
+		from 
+			price 
+			inner join 
+				(select game_id, name, cname, cover from game where realcard=1 order by rand() limit ?) as t1 
+			on price.game_id=t1.game_id
+		`)
+		if err == nil {
+			stmtQueryRealCard = stmt
 		}
 	}
 
@@ -375,6 +407,56 @@ func QueryPriceListByIds(ids []string) (*[]GamePrice, error) {
 		if err != nil {
 			continue
 		}
+		gamePrices = append(gamePrices, p)
+	}
+	return &gamePrices, nil
+}
+
+func QueryLatestGames(limit int) (*[]GamePrice, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQueryLatest == nil {
+		return nil, errors.New("db stmt init failed")
+	}
+	var gamePrices []GamePrice
+	rows, err := stmtQueryLatest.Query(limit)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p GamePrice
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price, &p.IsLowest)
+		if err != nil {
+			return nil, errors.New("scan error")
+		}
+		//fmt.Println(p)
+		gamePrices = append(gamePrices, p)
+	}
+	return &gamePrices, nil
+}
+
+func QueryRealCardGames(limit int) (*[]GamePrice, error) {
+	d := getdb()
+	if d == nil {
+		return nil, errors.New("db error")
+	}
+	if stmtQueryRealCard == nil {
+		return nil, errors.New("db stmt init failed")
+	}
+	var gamePrices []GamePrice
+	rows, err := stmtQueryRealCard.Query(limit)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var p GamePrice
+		err := rows.Scan(&p.Id, &p.Name, &p.Cname, &p.Cover, &p.Region, &p.Price, &p.IsLowest)
+		if err != nil {
+			return nil, errors.New("scan error")
+		}
+		//fmt.Println(p)
 		gamePrices = append(gamePrices, p)
 	}
 	return &gamePrices, nil
