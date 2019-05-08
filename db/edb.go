@@ -159,7 +159,7 @@ func initAllStmts() {
 		from 
 			price 
 			inner join 
-				(select game_id, name, cname, cover from game order by release_date desc limit ?) as t1 
+				(select game_id, name, cname, cover from game order by release_date desc limit ?,?) as t1 
 			on price.game_id=t1.game_id
 		`)
 		if err == nil {
@@ -174,7 +174,7 @@ func initAllStmts() {
 		from 
 			price 
 			inner join 
-				(select game_id, name, cname, cover from game where realcard=1 order by rand() limit ?) as t1 
+				(select game_id, name, cname, cover from game where realcard=1 order by rand() limit ?,?) as t1 
 			on price.game_id=t1.game_id
 		`)
 		if err == nil {
@@ -412,7 +412,7 @@ func QueryPriceListByIds(ids []string) (*[]GamePrice, error) {
 	return &gamePrices, nil
 }
 
-func QueryLatestGames(limit int) (*[]GamePrice, error) {
+func QueryLatestGames(startPos int, pageSize int) (*[]GamePrice, error) {
 	d := getdb()
 	if d == nil {
 		return nil, errors.New("db error")
@@ -421,7 +421,7 @@ func QueryLatestGames(limit int) (*[]GamePrice, error) {
 		return nil, errors.New("db stmt init failed")
 	}
 	var gamePrices []GamePrice
-	rows, err := stmtQueryLatest.Query(limit)
+	rows, err := stmtQueryLatest.Query(startPos, pageSize)
 	if err != nil {
 		return nil, err
 	}
@@ -437,7 +437,7 @@ func QueryLatestGames(limit int) (*[]GamePrice, error) {
 	return &gamePrices, nil
 }
 
-func QueryRealCardGames(limit int) (*[]GamePrice, error) {
+func QueryRealCardGames(startPos int, pageSize int) (*[]GamePrice, error) {
 	d := getdb()
 	if d == nil {
 		return nil, errors.New("db error")
@@ -446,7 +446,7 @@ func QueryRealCardGames(limit int) (*[]GamePrice, error) {
 		return nil, errors.New("db stmt init failed")
 	}
 	var gamePrices []GamePrice
-	rows, err := stmtQueryRealCard.Query(limit)
+	rows, err := stmtQueryRealCard.Query(startPos, pageSize)
 	if err != nil {
 		return nil, err
 	}

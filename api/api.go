@@ -1,6 +1,7 @@
 package api
 
 import "strings"
+import "strconv"
 
 import "github.com/gin-gonic/gin"
 
@@ -134,7 +135,7 @@ func searchPrice(c *gin.Context) {
 }
 
 func queryRecommend(c *gin.Context) {
-	r, err := db.QueryRecommendGames(20)
+	r, err := db.QueryRecommendGames(40)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
@@ -188,7 +189,25 @@ func queryPriceList(c *gin.Context) {
 }
 
 func queryLatest(c *gin.Context) {
-	r, err := db.QueryLatestGames(40)
+	sz := c.DefaultQuery("sz", "20")
+	no := c.DefaultQuery("no", "0")
+
+	pageSize, err := strconv.Atoi(sz)
+	if err != nil {
+		pageSize = 20
+	}
+	pageNo, err := strconv.Atoi(no)
+	if err != nil {
+		pageNo = 0;
+	}
+
+	startPos := pageSize * pageNo
+	if startPos > 100 {
+		c.JSON(200, formResult(0, "", gin.H{}))
+		return
+	}
+
+	r, err := db.QueryLatestGames(startPos, pageSize)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
@@ -212,7 +231,19 @@ func queryLatest(c *gin.Context) {
 }
 
 func queryRealCard(c *gin.Context) {
-	r, err := db.QueryRealCardGames(40)
+	sz := c.DefaultQuery("sz", "20")
+	no := c.DefaultQuery("no", "0")
+
+	pageSize, err := strconv.Atoi(sz)
+	if err != nil {
+		pageSize = 20
+	}
+	pageNo, err := strconv.Atoi(no)
+	if err != nil {
+		pageNo = 0;
+	}
+
+	r, err := db.QueryRealCardGames(pageSize * pageNo, pageSize)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
