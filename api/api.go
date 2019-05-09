@@ -1,7 +1,10 @@
 package api
 
-import "strings"
-import "strconv"
+import (
+	"strings"
+	"strconv"
+	"errors"
+)
 
 import "github.com/gin-gonic/gin"
 
@@ -18,8 +21,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/sp", searchPrice)
 	apisubdomain.GET("/recommend", queryRecommend)
 	apisubdomain.GET("/plist", queryPriceList)
-	apisubdomain.GET("/latest", queryLatest)
-	apisubdomain.GET("/classic", queryRealCard)
+	apisubdomain.GET("/discover", queryDiscover)
 	apisubdomain.GET("/hotwords", queryHotWords)
 }
 
@@ -188,52 +190,15 @@ func queryPriceList(c *gin.Context) {
 	}
 }
 
-func queryLatest(c *gin.Context) {
-	sz := c.DefaultQuery("sz", "20")
-	no := c.DefaultQuery("no", "0")
-
-	pageSize, err := strconv.Atoi(sz)
-	if err != nil {
-		pageSize = 20
-	}
-	pageNo, err := strconv.Atoi(no)
-	if err != nil {
-		pageNo = 0;
-	}
-
-	startPos := pageSize * pageNo
-	if startPos > 100 {
-		c.JSON(200, formResult(0, "", gin.H{}))
+func queryDiscover(c *gin.Context) {
+	cat := c.Query("cat")
+	if len(cat) == 0 {
+		c.JSON(200, formResult(301, string("invalid param cat"), gin.H{}))
 		return
 	}
 
-	r, err := db.QueryLatestGames(startPos, pageSize)
-	if err != nil {
-		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
-	} else {
-		d := gin.H{}
-		if r != nil {
-			var games []gin.H
-			var ids []string
-			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
-				ids = append(ids, e.Id)
-			}
-			if games != nil {
-				d = gin.H {
-					"games" : games,
-				}
-			}
-			invokeIpcTask(ids)
-		}
-		c.JSON(200, formResult(0, "", d))
-	}
-}
-
-func queryRealCard(c *gin.Context) {
 	sz := c.DefaultQuery("sz", "20")
 	no := c.DefaultQuery("no", "0")
-
 	pageSize, err := strconv.Atoi(sz)
 	if err != nil {
 		pageSize = 20
@@ -242,8 +207,23 @@ func queryRealCard(c *gin.Context) {
 	if err != nil {
 		pageNo = 0;
 	}
+	startPos := pageSize * pageNo
 
-	r, err := db.QueryRealCardGames(pageSize * pageNo, pageSize)
+	var r *[]db.GamePrice
+	if strings.EqualFold(cat, "latest") {
+		if startPos <= 100 {
+			r, err = db.QueryLatestGames(startPos, pageSize)
+		} else {
+			r = nil
+			err = nil
+		}
+	} else if strings.EqualFold(cat, "classic") {
+		r, err = db.QueryRealCardGames(startPos, pageSize)
+	} else {
+		r = nil
+		err = errors.New("unknown cat value:" + cat)
+	}
+
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
