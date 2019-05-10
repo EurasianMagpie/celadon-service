@@ -2,8 +2,6 @@ package api
 
 import (
 	"strings"
-	"strconv"
-	"errors"
 )
 
 import "github.com/gin-gonic/gin"
@@ -22,6 +20,7 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/recommend", queryRecommend)
 	apisubdomain.GET("/plist", queryPriceList)
 	apisubdomain.GET("/discover", queryDiscover)
+	apisubdomain.GET("/cateindex", queryCateIndex)
 	apisubdomain.GET("/hotwords", queryHotWords)
 }
 
@@ -190,62 +189,6 @@ func queryPriceList(c *gin.Context) {
 	}
 }
 
-func queryDiscover(c *gin.Context) {
-	cat := c.Query("cat")
-	if len(cat) == 0 {
-		c.JSON(200, formResult(301, string("invalid param cat"), gin.H{}))
-		return
-	}
-
-	sz := c.DefaultQuery("sz", "20")
-	no := c.DefaultQuery("no", "0")
-	pageSize, err := strconv.Atoi(sz)
-	if err != nil {
-		pageSize = 20
-	}
-	pageNo, err := strconv.Atoi(no)
-	if err != nil {
-		pageNo = 0;
-	}
-	startPos := pageSize * pageNo
-
-	var r *[]db.GamePrice
-	if strings.EqualFold(cat, "latest") {
-		if startPos <= 100 {
-			r, err = db.QueryLatestGames(startPos, pageSize)
-		} else {
-			r = nil
-			err = nil
-		}
-	} else if strings.EqualFold(cat, "classic") {
-		r, err = db.QueryRealCardGames(startPos, pageSize)
-	} else {
-		r = nil
-		err = errors.New("unknown cat value:" + cat)
-	}
-
-	if err != nil {
-		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
-	} else {
-		d := gin.H{}
-		if r != nil {
-			var games []gin.H
-			var ids []string
-			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
-				ids = append(ids, e.Id)
-			}
-			if games != nil {
-				d = gin.H {
-					"games" : games,
-				}
-			}
-			invokeIpcTask(ids)
-		}
-		c.JSON(200, formResult(0, "", d))
-	}
-}
-
 func queryHotWords(c *gin.Context) {
 	hwd := GetCurrentHotWords()
 	if hwd == nil {
@@ -255,6 +198,16 @@ func queryHotWords(c *gin.Context) {
 			"hotwords" : hwd.Words,
 		}
 		c.JSON(200, formResult(0, "", d))
+	}
+}
+
+func queryCateIndex(c *gin.Context) {
+	name := c.Query("name")
+	
+	if strings.EqualFold(name, "discover") {
+		queryDiscoverCateIndex(c)
+	} else {
+		c.JSON(200, formResult(203, string("no match"), gin.H{}))
 	}
 }
 
