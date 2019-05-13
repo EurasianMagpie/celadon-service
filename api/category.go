@@ -21,8 +21,8 @@ type Cate struct {
 }
 
 var discoverCates = [...]Cate {
-	Cate{"最新", "gplist", "latest", 1, queryLatestHandler},
-	Cate{"经典", "gplist", "classic", 0, queryClassicHandler},
+	Cate{"最新发布", "gplist", "latest", 1, queryLatestHandler},
+	Cate{"经典游戏", "gplist", "classic", 0, queryClassicHandler},
 }
 
 var mapDiscoverCates map[string]Cate
