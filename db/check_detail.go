@@ -11,18 +11,21 @@ func ReCheckGameDetail() bool {
 
 	var m map[string]bool
 	m = make(map[string]bool)
-	rows, err := d.Query("select game_id, description from game")
+	rows, err := d.Query("select game_id, DATE(release_date), description from game")
 	if err != nil {
 		return false
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var id, desc string
-		err := rows.Scan(&id, &desc)
+		var id, date, desc string
+		err := rows.Scan(&id, &date, &desc)
 		if err != nil {
 			return false
 		}
 		m[id] = len(desc)>0
+		if DefaultReleaseDate == date && id > "1900" {
+			m[id] = false
+		}
 		//fixGameDesc(id, desc)	// done
 		//fixUnEscapedDesc(id, desc)	// done
 	}

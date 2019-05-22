@@ -17,7 +17,7 @@ func RunWorker() {
 
 func idleProc() {
 	for {
-		time.Sleep(time.Duration(20)*time.Minute)
+		time.Sleep(time.Duration(5)*time.Minute)
 
 		if mon.IsCacheValid() {
 			ipc.GenerateIdleTask()

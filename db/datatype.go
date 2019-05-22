@@ -32,11 +32,13 @@ type GameInfo struct {
 	CoverType string
 }
 
+var DefaultReleaseDate = "2018-01-01"
+
 func NewGameInfo(id string, name string, ref string) GameInfo {
 	gameInfo := GameInfo {
 		Id:id, Name:name, Cname:"", Publisher:"", Desc:"", Cover:"", Language:"", Tags:"", RealCard:0, Status:0,
 	}
-	dt, _ := time.Parse("2006-01-02", "2018-01-01")
+	dt, _ := time.Parse("2006-01-02", DefaultReleaseDate)
 	gameInfo.ReleaseDate = dt
 	gameInfo.Ref = ref
 	return gameInfo

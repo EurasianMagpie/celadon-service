@@ -65,7 +65,7 @@ func GenerateIdleTask() {
 	if !taskList.empty() {
 		return
 	}
-	arg := NewTaskArg(db.FindAnyUnDetailedGames(10))
+	arg := NewTaskArg(db.FindAnyUnDetailedGames(2))
 	taskList.push(&arg)
 }
 
