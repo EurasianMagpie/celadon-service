@@ -6,6 +6,7 @@ import (
 
 import "github.com/EurasianMagpie/celadon/mon"
 import "github.com/EurasianMagpie/celadon/ipc"
+import "github.com/EurasianMagpie/celadon/db"
 
 
 func RunWorker() {
@@ -23,6 +24,8 @@ func idleProc() {
 			ipc.GenerateIdleTask()
 		} else {
 			mon.RunMonTask(false)
+
+			db.ReCheckGameDetail()
 		}
 	}
 }
