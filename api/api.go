@@ -2,6 +2,7 @@ package api
 
 import (
 	"strings"
+	"strconv"
 )
 
 import "github.com/gin-gonic/gin"
@@ -22,6 +23,10 @@ func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain.GET("/discover", queryDiscover)
 	apisubdomain.GET("/cateindex", queryCateIndex)
 	apisubdomain.GET("/hotwords", queryHotWords)
+}
+
+func PrepareToRun() {
+	db.ReCheckCheapGames()
 }
 
 func regionInfo(c *gin.Context) {
@@ -136,7 +141,19 @@ func searchPrice(c *gin.Context) {
 }
 
 func queryRecommend(c *gin.Context) {
-	r, err := db.QueryRecommendGames(40)
+	sz := c.DefaultQuery("sz", "20")
+	no := c.DefaultQuery("no", "0")
+	pageSize, err := strconv.Atoi(sz)
+	if err != nil {
+		pageSize = 20
+	}
+	pageNo, err := strconv.Atoi(no)
+	if err != nil {
+		pageNo = 0;
+	}
+	startPos := pageSize * pageNo
+
+	r, err := db.QueryCheapGames(startPos, pageSize)
 	if err != nil {
 		c.JSON(200, formResult(300, string(err.Error()), gin.H{}))
 	} else {
