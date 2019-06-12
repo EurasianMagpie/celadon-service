@@ -5,7 +5,6 @@ import "io/ioutil"
 import "os"
 import "path/filepath"
 import "time"
-import "strings"
 import "bufio"
 
 import "net/http"
@@ -135,30 +134,33 @@ func fetchPageNet() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	now := time.Now()
 	w := bufio.NewWriter(fcfg)
-	w.WriteString(currentDate())
+	w.WriteString(now.Format("2006-01-02 15:04:05 MST"))
 	w.Flush()
 
 	return string(body), nil
 }
 
-func lastFetchDate() string {
-	r := ""
+func lastFetchTime() time.Time {
+	r, _ := time.Parse("2006-01-02", "2000-01-01")
+
 	fname, err := monCacheCfgPath()
 	if err != nil {
 		return r
 	}
-	date, err := ioutil.ReadFile(fname)
+	tm, err := ioutil.ReadFile(fname)
 	if err != nil {
 		return r
 	}
-	r = string(date)
-	return r
-}
+	strTime := string(tm)
 
-func currentDate() string {
-	currentTime := time.Now()
-	return currentTime.Format("2006-01-02")
+	layout := "2006-01-02 15:04:05 MST"
+	lastTime, err := time.Parse(layout, strTime)
+    if err != nil {
+        return r
+    }
+	return lastTime
 }
 
 func isFileExist(fname string) bool {
@@ -169,19 +171,13 @@ func isFileExist(fname string) bool {
 }
 
 func IsCacheValid() bool {
-	curDate := currentDate()
-	if strings.Compare(lastFetchDate(), curDate) == 0 {
-		fname, err := monCacheFilePath()
-		if err != nil {
-			return false
-		}
-		if _, err := os.Stat(fname); os.IsNotExist(err) {
-			return false
-		}
+	lastTime := lastFetchTime()
+	duration := time.Since(lastTime)
+	fmt.Println("IsCacheValid | duration(Hours):", duration.Hours())
+	if duration.Hours() < 6 {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func fetchPageLocal() (string, error) {

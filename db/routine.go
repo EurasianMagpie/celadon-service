@@ -148,7 +148,7 @@ func ReCheckCheapGames() bool {
 
 func QueryCheapGames(startPos int, pageSize int) (*[]GamePrice, error) {
 	duration := time.Since(checkCheapTime)
-	if duration.Hours() > 24 {
+	if duration.Hours() > 6 {
 		go ReCheckCheapGames()
 		checkCheapTime = time.Now()
 	}
