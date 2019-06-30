@@ -60,7 +60,7 @@ func setupDB() {
         language TEXT,
         tags TEXT,
         realcard INT NOT NULL DEFAULT 0,
-        status INT NOT NULL DEFAULT 0,
+        status INT NOT NULL DEFAULT 0, 
         priority INT NOT NULL DEFAULT 0,
         ref TEXT,
         PRIMARY KEY (game_id)
@@ -92,11 +92,15 @@ func setupDB() {
 }
 
 var regions = [...]Region {
-	Region{"Australia","澳大利亚","AUS",""},
+    Region{"Argentina","阿根廷","ARG",""},
+    Region{"Australia","澳大利亚","AUS",""},
     Region{"Austria","奥地利","AUT",""},
     Region{"Belgium","比利时","BEL",""},
+    Region{"Brazil","巴西","BRA",""},
     Region{"Bulgaria","保加利亚","BGR",""},
     Region{"Canada","加拿大","CAN",""},
+    Region{"Chile","智利","CHL",""},
+    Region{"Colombia","哥伦比亚","COL",""},
     Region{"Croatia","克罗地亚","HRV",""},
     Region{"Cyprus","塞浦路斯","CYP",""},
     Region{"Czech Republic","捷克","CZE",""},
@@ -118,6 +122,7 @@ var regions = [...]Region {
     Region{"Netherlands","荷兰","NLD",""},
     Region{"New Zealand","新西兰","NZL",""},
     Region{"Norway","挪威","NOR",""},
+    Region{"Peru","秘鲁","PER",""},
     Region{"Poland","波兰","POL",""},
     Region{"Portugal","葡萄牙","PRT",""},
     Region{"Romania","罗马尼亚","ROU",""},

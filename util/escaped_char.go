@@ -1,7 +1,7 @@
 package util
 
 import (
-	"fmt"
+	//"fmt"
 	"regexp"
 )
 
@@ -378,7 +378,7 @@ func init() {
 var replaced = false
 
 func replaceFunc (b string) string {
-	fmt.Println("Matched:", b)
+	//fmt.Println("Matched:", b)
 	if val, ok := mapEscapedChar[b]; ok {
 		replaced = true
 		return val
@@ -390,7 +390,7 @@ func UnEscape(in string) (bool, string) {
 	reg := regexp.MustCompile("&#[0-9]{1,4};")
 	replaced = false
 	s := reg.ReplaceAllStringFunc(in, replaceFunc)
-	fmt.Println("Result:", s)
+	//fmt.Println("Result:", s)
 
 	return replaced, s
 }
