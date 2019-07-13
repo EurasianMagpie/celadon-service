@@ -79,15 +79,15 @@ func queryDiscover(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			var games []gin.H
+			var items []gin.H
 			var ids []string
 			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
+				items = append(items, formContentItem(c, NewContentItemGamePrice(e)))
 				ids = append(ids, e.Id)
 			}
-			if games != nil {
+			if items != nil {
 				d = gin.H {
-					"games" : games,
+					"items" : items,
 				}
 			}
 			invokeIpcTask(ids)

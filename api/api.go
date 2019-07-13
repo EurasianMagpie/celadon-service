@@ -13,16 +13,18 @@ import "github.com/EurasianMagpie/celadon/ipc"
 
 func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain := r.Group("/celadon")
-	apisubdomain.GET("/rinfo", regionInfo)
-	apisubdomain.GET("/ginfo", gameInfo)
-	apisubdomain.GET("/pinfo", priceInfo)
-	apisubdomain.GET("/gp", gamePrice)
-	apisubdomain.GET("/sp", searchPrice)
-	apisubdomain.GET("/recommend", queryRecommend)
-	apisubdomain.GET("/plist", queryPriceList)
-	apisubdomain.GET("/discover", queryDiscover)
-	apisubdomain.GET("/cateindex", queryCateIndex)
-	apisubdomain.GET("/hotwords", queryHotWords)
+	apisubdomain.GET("/regioninfo", regionInfo)		// RegionInfo
+	apisubdomain.GET("/gameinfo", gameInfo)			// GameInfo
+	apisubdomain.GET("/priceinfo", priceInfo)		// PriceInfo
+	apisubdomain.GET("/hotwords", queryHotWords)	// HotWords
+
+	//apisubdomain.GET("/gameprice", gamePrice)		// GamePrice
+	apisubdomain.GET("/search", searchPrice)		// []ContentItem - ok
+	apisubdomain.GET("/recommend", queryRecommend)	// []ContentItem - ok
+	apisubdomain.GET("/queryplist", queryPriceList)	// []ContentItem - ok
+
+	apisubdomain.GET("/cateindex", queryCateIndex)	// CateIndex
+	apisubdomain.GET("/discover", queryDiscover)	// []ContentItem - ok
 }
 
 func PrepareToRun() {
@@ -123,15 +125,15 @@ func searchPrice(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			var games []gin.H
+			var items []gin.H
 			var ids []string
 			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
+				items = append(items, formContentItem(c, NewContentItemGamePrice(e)))
 				ids = append(ids, e.Id)
 			}
-			if games != nil {
+			if items != nil {
 				d = gin.H {
-					"games" : games,
+					"items" : items,
 				}
 			}
 			invokeIpcTask(ids)
@@ -159,15 +161,15 @@ func queryRecommend(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			var games []gin.H
+			var items []gin.H
 			var ids []string
 			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
+				items = append(items, formContentItem(c, NewContentItemGamePrice(e)))
 				ids = append(ids, e.Id)
 			}
-			if games != nil {
+			if items != nil {
 				d = gin.H {
-					"games" : games,
+					"items" : items,
 				}
 			}
 			invokeIpcTask(ids)
@@ -189,15 +191,15 @@ func queryPriceList(c *gin.Context) {
 	} else {
 		d := gin.H{}
 		if r != nil {
-			var games []gin.H
+			var items []gin.H
 			var ids []string
 			for _, e := range *r {
-				games = append(games, formGamePrice(c, e))
+				items = append(items, formContentItem(c, NewContentItemGamePrice(e)))
 				ids = append(ids, e.Id)
 			}
-			if games != nil {
+			if items != nil {
 				d = gin.H {
-					"games" : games,
+					"items" : items,
 				}
 			}
 			invokeIpcTask(ids)

@@ -69,6 +69,19 @@ func formPrice(c *gin.Context, p db.Price) gin.H {
 	}
 }
 
+func formContentItem(c *gin.Context, item ContentItem) gin.H {
+	if item.Type == ContentType_GamePrice {
+		return gin.H {
+			"type": item.Type,
+			"gp": formGamePrice(c, item.Data.(db.GamePrice)),
+		}
+	} else {
+		return gin.H {
+			"type": item.Type,
+		}
+	}
+}
+
 func formResult(errno int, errmsg string, data gin.H) gin.H {
 	return gin.H {
 		"errno": errno,
