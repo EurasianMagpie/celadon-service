@@ -2,7 +2,7 @@ package mon
 
 import "fmt"
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 func RunMonTask(deep bool) {
 	d, err := FetchPage()

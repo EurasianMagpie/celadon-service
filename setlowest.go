@@ -3,7 +3,7 @@ package main
 import "fmt"
 import "flag"
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 func main()  {
 

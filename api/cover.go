@@ -8,7 +8,7 @@ import "fmt"
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon/config"
+import "github.com/EurasianMagpie/celadon-service/config"
 
 /*
 func RegisterStaticRoutes(r *gin.Engine) {

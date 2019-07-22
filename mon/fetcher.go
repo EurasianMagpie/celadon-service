@@ -10,7 +10,7 @@ import "bufio"
 import "net/http"
 import "net/url"
 
-import "github.com/EurasianMagpie/celadon/config"
+import "github.com/EurasianMagpie/celadon-service/config"
 
 
 

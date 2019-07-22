@@ -4,7 +4,7 @@ import "strings"
 import "database/sql"
 import "fmt"
 
-import "github.com/EurasianMagpie/celadon/util"
+import "github.com/EurasianMagpie/celadon-service/util"
 
 var stmtUpdateGameDesc *sql.Stmt
 

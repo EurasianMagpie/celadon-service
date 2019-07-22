@@ -7,7 +7,7 @@ import (
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 type CateHandlerFunc func(int, int) (*[]db.GamePrice, error)
 

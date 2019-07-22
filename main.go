@@ -6,10 +6,10 @@ import "strings"
 
 import "github.com/gin-gonic/gin"
 
-//import "github.com/EurasianMagpie/celadon/debug"
-import "github.com/EurasianMagpie/celadon/api"
-import "github.com/EurasianMagpie/celadon/mon"
-import "github.com/EurasianMagpie/celadon/worker"
+//import "github.com/EurasianMagpie/celadon-service/debug"
+import "github.com/EurasianMagpie/celadon-service/api"
+import "github.com/EurasianMagpie/celadon-service/mon"
+import "github.com/EurasianMagpie/celadon-service/worker"
 
 func main()  {
 	//debug.Info()

@@ -10,8 +10,8 @@ import "time"
 
 import "golang.org/x/net/html"
 
-import "github.com/EurasianMagpie/celadon/db"
-import "github.com/EurasianMagpie/celadon/util"
+import "github.com/EurasianMagpie/celadon-service/db"
+import "github.com/EurasianMagpie/celadon-service/util"
 
 
 var defaultDate time.Time

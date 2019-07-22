@@ -5,7 +5,7 @@ import (
 	"os"
 	"fmt"
 )
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 type GameData struct {
 	Cname string `json:"cname"`

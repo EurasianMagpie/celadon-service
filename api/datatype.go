@@ -1,6 +1,6 @@
 package api
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 const (
 	ContentType_GamePrice 	= "1"

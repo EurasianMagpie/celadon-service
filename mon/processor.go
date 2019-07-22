@@ -1,6 +1,6 @@
 package mon
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 
 func UpdateResult(result *ParseResult, deep bool) {

@@ -2,8 +2,8 @@ package api
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon/db"
-import "github.com/EurasianMagpie/celadon/operation"
+import "github.com/EurasianMagpie/celadon-service/db"
+import "github.com/EurasianMagpie/celadon-service/operation"
 
 
 func formGameInfo(c *gin.Context, g *db.GameInfo) gin.H {

@@ -10,8 +10,8 @@ import (
 	"errors"
 )
 
-import "github.com/EurasianMagpie/celadon/mon"
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/mon"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 
 

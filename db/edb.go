@@ -9,7 +9,7 @@ import "database/sql"
 import _ "database/sql/driver"
 import _ "github.com/go-sql-driver/mysql"
 
-import "github.com/EurasianMagpie/celadon/config"
+import "github.com/EurasianMagpie/celadon-service/config"
 
 
 var edb *sql.DB

@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-import "github.com/EurasianMagpie/celadon/util"
+import "github.com/EurasianMagpie/celadon-service/util"
 
 func main()  {
 	s := "Hello world"

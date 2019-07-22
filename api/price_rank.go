@@ -7,7 +7,7 @@ import "container/list"
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon/db"
+import "github.com/EurasianMagpie/celadon-service/db"
 
 type regionPrice struct {
 	Index int
