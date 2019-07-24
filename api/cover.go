@@ -2,13 +2,12 @@ package api
 
 import "errors"
 //import "net/http"
-import "os"
 import "fmt"
 //import "bufio"
 
 import "github.com/gin-gonic/gin"
 
-import "github.com/EurasianMagpie/celadon-service/config"
+import "github.com/EurasianMagpie/celadon-service/util"
 
 /*
 func RegisterStaticRoutes(r *gin.Engine) {
@@ -59,19 +58,12 @@ func getCover(c *gin.Context) {
 }
 
 func gameCoverLocalDir() (string, error) {
-	d, err := os.Getwd()
+	d, err := util.GetMonDataDir()
 	if err != nil {
 		return "", err
 	}
-	dir := d + config.GetMonDataDir() + "/cover"
+	dir := d + "/cover"
 	return dir, nil
-}
-
-func isFileExist(fname string) bool {
-	if _, err := os.Stat(fname); os.IsNotExist(err) {
-		return false
-	}
-	return true
 }
 
 // relative path
@@ -82,7 +74,7 @@ func getGameCoverRefPath(id string) (string, error) {
 	}
 	s := "/" + id + ".webp"
 	p := d + s
-	if isFileExist(p) {
+	if util.IsFileExist(p) {
 		return "/celadon/cover" + s, nil
 	}
 	return "", errors.New("file not found")

@@ -11,20 +11,12 @@ import "net/http"
 import "net/url"
 
 import "github.com/EurasianMagpie/celadon-service/config"
+import "github.com/EurasianMagpie/celadon-service/util"
 
 
-
-func monDataDir() (string, error) {
-	d, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	dir := d + config.GetMonDataDir()
-	return dir, nil
-}
 
 func monCacheFilePath() (string, error) {
-	dir, err := monDataDir()
+	dir, err := util.GetMonDataDir()
 	if err != nil {
 		return "", err
 	}
@@ -33,7 +25,7 @@ func monCacheFilePath() (string, error) {
 }
 
 func monCacheCfgPath() (string, error) {
-	dir, err := monDataDir()
+	dir, err := util.GetMonDataDir()
 	if err != nil {
 		return "", err
 	}
@@ -204,11 +196,11 @@ func FetchPage() (string, error) {
 }
 
 func gameCoverDir() (string, error) {
-	d, err := os.Getwd()
+	d, err := util.GetMonDataDir()
 	if err != nil {
 		return "", err
 	}
-	dir := d + config.GetMonDataDir() + "/cover"
+	dir := d + "/cover"
 	return dir, nil
 }
 

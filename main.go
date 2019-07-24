@@ -22,6 +22,7 @@ func main()  {
 		r := gin.Default()
 		api.RegisterApiRoutes(r)
 		api.RegisterCoverRoutes(r)
+		api.RegisterDownloadRoutes(r)
 		api.PrepareToRun()
 		r.Run("localhost:8080")
 	} else if strings.Compare(*t, "mon") == 0 {
