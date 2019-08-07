@@ -4,6 +4,7 @@ import "fmt"
 import "io/ioutil"
 import "os"
 import "path/filepath"
+import "strings"
 import "time"
 import "bufio"
 
@@ -146,6 +147,7 @@ func lastFetchTime() time.Time {
 		return r
 	}
 	strTime := string(tm)
+	strTime = strings.Trim(strTime, " \n")
 
 	layout := "2006-01-02 15:04:05 MST"
 	lastTime, err := time.Parse(layout, strTime)
