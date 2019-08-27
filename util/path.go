@@ -25,6 +25,15 @@ func GetDownloadDir() (string, error) {
 	return dir, nil
 }
 
+func GetResDir() (string, error) {
+	d, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	dir := d + "/res"
+	return dir, nil
+}
+
 func IsFileExist(fname string) bool {
 	if _, err := os.Stat(fname); os.IsNotExist(err) {
 		return false

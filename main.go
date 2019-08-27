@@ -23,6 +23,7 @@ func main()  {
 		api.RegisterApiRoutes(r)
 		api.RegisterCoverRoutes(r)
 		api.RegisterDownloadRoutes(r)
+		api.RegisterResourceRoutes(r)
 		api.PrepareToRun()
 		r.Run("localhost:8080")
 	} else if strings.Compare(*t, "mon") == 0 {
