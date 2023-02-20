@@ -1,13 +1,14 @@
 package api
 
-import "errors"
-//import "net/http"
-import "fmt"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/EurasianMagpie/celadon-service/util"
+	"github.com/gin-gonic/gin"
+)
+
 //import "bufio"
-
-import "github.com/gin-gonic/gin"
-
-import "github.com/EurasianMagpie/celadon-service/util"
 
 /*
 func RegisterStaticRoutes(r *gin.Engine) {
@@ -29,7 +30,6 @@ func getCover(c *gin.Context) {
 		c.JSON(200, formResult(301, string("invalid param ..."), gin.H{}))
 		return
 	}
-	
 
 	d, err := gameCoverLocalDir()
 	if err != nil {
@@ -53,8 +53,7 @@ func getCover(c *gin.Context) {
 		"x-i": id,
 	}
 	c.DataFromReader(http.StatusOK, contentLength, contentType, reader, extraHeaders)//*/
-	c.File(path)//*/
-	return
+	c.File(path)
 }
 
 func gameCoverLocalDir() (string, error) {
@@ -79,4 +78,3 @@ func getGameCoverRefPath(id string) (string, error) {
 	}
 	return "", errors.New("file not found")
 }
-
