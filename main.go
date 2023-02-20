@@ -1,14 +1,14 @@
 package main
 
 import (
-	"celadon-service/api"
 	"flag"
 	"fmt"
 	"strings"
 
-	//"github.com/EurasianMagpie/celadon-service/api"
-	"github.com/EurasianMagpie/celadon-service/mon"
-	"github.com/EurasianMagpie/celadon-service/worker"
+	"celadon-service/api"
+	"celadon-service/mon"
+	"celadon-service/worker"
+
 	"github.com/gin-gonic/gin"
 )
 

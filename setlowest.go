@@ -1,11 +1,12 @@
 package main
 
-import "fmt"
-import "flag"
+import (
+	"celadon-service/db"
+	"flag"
+	"fmt"
+)
 
-import "github.com/EurasianMagpie/celadon-service/db"
-
-func main()  {
+func main() {
 
 	id := flag.String("id", "", "game id")
 	prc := flag.String("price", "", "lowest price")

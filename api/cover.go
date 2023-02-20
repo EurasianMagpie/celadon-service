@@ -4,7 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/EurasianMagpie/celadon-service/util"
+	"celadon-service/util"
+
 	"github.com/gin-gonic/gin"
 )
 

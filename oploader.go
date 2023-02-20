@@ -1,8 +1,7 @@
 package main
 
+import "celadon-service/operation"
 
-import "github.com/EurasianMagpie/celadon-service/operation"
-
-func main()  {
+func main() {
 	operation.LoadUpdateOpData()
 }

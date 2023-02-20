@@ -1,10 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"celadon-service/util"
+	"fmt"
+)
 
-import "github.com/EurasianMagpie/celadon-service/util"
-
-func main()  {
+func main() {
 	s := "Hello world"
 	//s := "Help <&#8888;;> Julie to enroll in the prestigious cooking school &#39;Le Cookery&#39;."
 	b, out := util.UnEscape(s)

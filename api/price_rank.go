@@ -1,21 +1,23 @@
 package api
 
-import "strings"
-import "fmt"
-import "strconv"
-import "container/list"
+import (
+	"celadon-service/db"
+	"container/list"
+	"fmt"
+	"strconv"
+	"strings"
 
-import "github.com/gin-gonic/gin"
-
-import "github.com/EurasianMagpie/celadon-service/db"
+	"github.com/gin-gonic/gin"
+)
 
 type regionPrice struct {
 	Index int
-	FP float64
+	FP    float64
 	Price string
 }
 
 var rankLength = 10
+
 func calcRegionPriceRank(prices string) ([]regionPrice, error) {
 	var priceList []regionPrice
 	rank := list.New()
@@ -40,11 +42,11 @@ func calcRegionPriceRank(prices string) ([]regionPrice, error) {
 			rank.PushBack(cur)
 		}
 	}
-	
+
 	for r := rank.Front(); r != nil; r = r.Next() {
 		er := r.Value.(regionPrice)
 		priceList = append(priceList, er)
-		if len(priceList) == rankLength - 1 {
+		if len(priceList) == rankLength-1 {
 			break
 		}
 	}
@@ -64,7 +66,7 @@ func formPriceRank(priceList []regionPrice) []gin.H {
 			regionName = region.Cname
 		}
 		r = append(r, gin.H{
-			"price": p.Price,
+			"price":  p.Price,
 			"region": regionName,
 		})
 	}

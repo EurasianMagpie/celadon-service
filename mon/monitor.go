@@ -1,8 +1,9 @@
 package mon
 
-import "fmt"
-
-import "github.com/EurasianMagpie/celadon-service/db"
+import (
+	"celadon-service/db"
+	"fmt"
+)
 
 func RunMonTask(deep bool) {
 	d, err := FetchPage()

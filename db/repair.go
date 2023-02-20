@@ -1,10 +1,11 @@
 package db
 
-import "strings"
-import "database/sql"
-import "fmt"
-
-import "github.com/EurasianMagpie/celadon-service/util"
+import (
+	"celadon-service/util"
+	"database/sql"
+	"fmt"
+	"strings"
+)
 
 var stmtUpdateGameDesc *sql.Stmt
 
@@ -39,7 +40,7 @@ func fixGameDesc(id string, desc string) {
 		return
 	}
 	b := strings.Index(desc, "\">")
-	if b !=-1 && b < l {
+	if b != -1 && b < l {
 		desc_new := strings.Trim(desc[b+2:], " \n")
 		fmt.Println("update desc : ", id, desc_new)
 		stmtUpdateGameDesc.Exec(desc_new, id)

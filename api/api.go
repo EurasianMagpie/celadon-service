@@ -1,30 +1,28 @@
 package api
 
 import (
-	"strings"
+	"celadon-service/db"
+	"celadon-service/ipc"
 	"strconv"
+	"strings"
+
+	"github.com/gin-gonic/gin"
 )
-
-import "github.com/gin-gonic/gin"
-
-import "github.com/EurasianMagpie/celadon-service/db"
-import "github.com/EurasianMagpie/celadon-service/ipc"
-
 
 func RegisterApiRoutes(r *gin.Engine) {
 	apisubdomain := r.Group("/celadon")
-	apisubdomain.GET("/regioninfo", regionInfo)		// RegionInfo
-	apisubdomain.GET("/gameinfo", gameInfo)			// GameInfo
-	apisubdomain.GET("/priceinfo", priceInfo)		// PriceInfo
-	apisubdomain.GET("/hotwords", queryHotWords)	// HotWords
+	apisubdomain.GET("/regioninfo", regionInfo)  // RegionInfo
+	apisubdomain.GET("/gameinfo", gameInfo)      // GameInfo
+	apisubdomain.GET("/priceinfo", priceInfo)    // PriceInfo
+	apisubdomain.GET("/hotwords", queryHotWords) // HotWords
 
 	//apisubdomain.GET("/gameprice", gamePrice)		// GamePrice
-	apisubdomain.GET("/search", searchPrice)		// []ContentItem - ok
-	apisubdomain.GET("/recommend", queryRecommend)	// []ContentItem - ok
-	apisubdomain.GET("/queryplist", queryPriceList)	// []ContentItem - ok
+	apisubdomain.GET("/search", searchPrice)        // []ContentItem - ok
+	apisubdomain.GET("/recommend", queryRecommend)  // []ContentItem - ok
+	apisubdomain.GET("/queryplist", queryPriceList) // []ContentItem - ok
 
-	apisubdomain.GET("/cateindex", queryCateIndex)	// CateIndex
-	apisubdomain.GET("/discover", queryDiscover)	// []ContentItem - ok
+	apisubdomain.GET("/cateindex", queryCateIndex) // CateIndex
+	apisubdomain.GET("/discover", queryDiscover)   // []ContentItem - ok
 }
 
 func PrepareToRun() {
@@ -43,8 +41,8 @@ func regionInfo(c *gin.Context) {
 		d := gin.H{}
 		if r != nil {
 			d = gin.H{
-				"id": r.Region_id,
-				"name": r.Name,
+				"id":    r.Region_id,
+				"name":  r.Name,
 				"cname": r.Cname,
 			}
 		}
@@ -132,8 +130,8 @@ func searchPrice(c *gin.Context) {
 				ids = append(ids, e.Id)
 			}
 			if items != nil {
-				d = gin.H {
-					"items" : items,
+				d = gin.H{
+					"items": items,
 				}
 			}
 			invokeIpcTask(ids)
@@ -151,7 +149,7 @@ func queryRecommend(c *gin.Context) {
 	}
 	pageNo, err := strconv.Atoi(no)
 	if err != nil {
-		pageNo = 0;
+		pageNo = 0
 	}
 	startPos := pageSize * pageNo
 
@@ -168,8 +166,8 @@ func queryRecommend(c *gin.Context) {
 				ids = append(ids, e.Id)
 			}
 			if items != nil {
-				d = gin.H {
-					"items" : items,
+				d = gin.H{
+					"items": items,
 				}
 			}
 			invokeIpcTask(ids)
@@ -198,8 +196,8 @@ func queryPriceList(c *gin.Context) {
 				ids = append(ids, e.Id)
 			}
 			if items != nil {
-				d = gin.H {
-					"items" : items,
+				d = gin.H{
+					"items": items,
 				}
 			}
 			invokeIpcTask(ids)
@@ -214,7 +212,7 @@ func queryHotWords(c *gin.Context) {
 		c.JSON(202, formResult(300, "something wrong ...", gin.H{}))
 	} else {
 		d := gin.H{
-			"hotwords" : hwd.Words,
+			"hotwords": hwd.Words,
 		}
 		c.JSON(200, formResult(0, "", d))
 	}
@@ -222,7 +220,7 @@ func queryHotWords(c *gin.Context) {
 
 func queryCateIndex(c *gin.Context) {
 	name := c.Query("name")
-	
+
 	if strings.EqualFold(name, "discover") {
 		queryDiscoverCateIndex(c)
 	} else {

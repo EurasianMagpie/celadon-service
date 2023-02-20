@@ -1,16 +1,17 @@
 package db
 
-import "fmt"
-//import "log"
-import "errors"
-import "strconv"
+import (
+	"database/sql" //import "log"
+	"errors"
+	"fmt"
+	"strconv"
 
-import "database/sql"
-import _ "database/sql/driver"
-import _ "github.com/go-sql-driver/mysql"
+	_ "database/sql/driver"
 
-import "github.com/EurasianMagpie/celadon-service/config"
+	"celadon-service/config"
 
+	_ "github.com/go-sql-driver/mysql"
+)
 
 var edb *sql.DB
 var stmtQueryRegion *sql.Stmt
@@ -205,7 +206,7 @@ func initAllStmts() {
 			stmtUpdateGameSimple = stmt
 		}
 	}
-	
+
 	if stmtUpdateGameFull == nil {
 		//fmt.Println("create stmtUpdateGameFull")
 		stmt, err := d.Prepare(`
@@ -233,7 +234,7 @@ func initAllStmts() {
 			stmtUpdateQueryLowestPrice = stmt
 		}
 	}
-	
+
 	if stmtUpdateLowestPrice == nil {
 		//fmt.Println("create stmtUpdateLowestPrice")
 		stmt, err := d.Prepare("UPDATE price SET lowestprice=?, lowestregion=?, islowest=1 where game_id=?")
@@ -578,7 +579,7 @@ func UpdateLowestPrice(id string, price string, region string) bool {
 		return false
 	}
 	hasLowest := false
-	if (len(lowest) > 0) {
+	if len(lowest) > 0 {
 		hasLowest = true
 	}
 

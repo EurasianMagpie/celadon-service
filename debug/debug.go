@@ -1,8 +1,9 @@
 package debug
 
-import "os"
-import "fmt"
-
+import (
+	"fmt"
+	"os"
+)
 
 func Info() {
 	fmt.Println("=== debug.Info <begin> =========")

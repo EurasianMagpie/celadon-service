@@ -3,18 +3,18 @@ package api
 import (
 	"fmt"
 
-	"github.com/EurasianMagpie/celadon-service/db"
-	"github.com/EurasianMagpie/celadon-service/operation"
+	"celadon-service/db"
+	"celadon-service/operation"
+
 	"github.com/gin-gonic/gin"
 )
 
 func formCoverUrl(c *gin.Context, id string) (string, error) {
 	p, err := getGameCoverRefPath(id)
 	if err == nil {
-		p = "http://" + c.Request.Host + "/" + p
-		//p = "http://192.3.80.174/" + p
+		p = "http://" + c.Request.Host + p
 	}
-	fmt.Println("formCoverUrl", p)
+	fmt.Println("formCoverUrl | p:" + p + " Host:" + c.Request.Host)
 	return p, nil
 }
 

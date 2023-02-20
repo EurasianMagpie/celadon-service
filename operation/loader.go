@@ -1,18 +1,18 @@
 package operation
 
 import (
+	"celadon-service/db"
 	"encoding/json"
-	"os"
 	"fmt"
+	"os"
 )
-import "github.com/EurasianMagpie/celadon-service/db"
 
 type GameData struct {
-	Cname string `json:"cname"`
-	RealCard int `json:"card"`
-	Publisher string `json:"publisher"`
+	Cname       string `json:"cname"`
+	RealCard    int    `json:"card"`
+	Publisher   string `json:"publisher"`
 	ReleaseTime string `json:"time"`
-	Lowest string `json:"lowest"`
+	Lowest      string `json:"lowest"`
 }
 
 type OpData struct {

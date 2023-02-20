@@ -1,20 +1,18 @@
 package mon
 
-import "fmt"
-import "io/ioutil"
-import "os"
-import "path/filepath"
-import "strings"
-import "time"
-import "bufio"
-
-import "net/http"
-import "net/url"
-
-import "github.com/EurasianMagpie/celadon-service/config"
-import "github.com/EurasianMagpie/celadon-service/util"
-
-
+import (
+	"bufio"
+	"celadon-service/config"
+	"celadon-service/util"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+)
 
 func monCacheFilePath() (string, error) {
 	dir, err := util.GetMonDataDir()
@@ -37,10 +35,10 @@ func monCacheCfgPath() (string, error) {
 func ensureDir(fileName string) {
 	dirName := filepath.Dir(fileName)
 	if _, serr := os.Stat(dirName); serr != nil {
-	  merr := os.MkdirAll(dirName, os.ModePerm)
-	  if merr != nil {
-		  panic(merr)
-	  }
+		merr := os.MkdirAll(dirName, os.ModePerm)
+		if merr != nil {
+			panic(merr)
+		}
 	}
 }
 
@@ -103,7 +101,7 @@ func fetchPageNet() (string, error) {
 	}
 	fmt.Println(fname)
 	ensureDir(fname)
-	
+
 	f, err := os.Create(fname)
 	if err != nil {
 		fmt.Println("FetchPage | create file failed")
@@ -151,9 +149,9 @@ func lastFetchTime() time.Time {
 
 	layout := "2006-01-02 15:04:05 MST"
 	lastTime, err := time.Parse(layout, strTime)
-    if err != nil {
-        return r
-    }
+	if err != nil {
+		return r
+	}
 	return lastTime
 }
 
@@ -223,7 +221,7 @@ func FetchGameCoverIfNeeded(id string, url string, _type string) {
 	if _type != "webp" {
 		ext = "jpg"
 	}
-	
+
 	//fmt.Println("FetchGameCoverIfNeeded", ext)
 	dir, err := gameCoverDir()
 	if err != nil {

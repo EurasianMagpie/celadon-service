@@ -1,11 +1,11 @@
 package api
 
-import "github.com/EurasianMagpie/celadon-service/db"
+import "celadon-service/db"
 
 const (
-	ContentType_GamePrice 	= "1"
-	ContentType_H5			= "2"
-	ContentType_AD			= "9"
+	ContentType_GamePrice = "1"
+	ContentType_H5        = "2"
+	ContentType_AD        = "9"
 )
 
 type ContentItem struct {
@@ -14,6 +14,6 @@ type ContentItem struct {
 }
 
 func NewContentItemGamePrice(gamePrice db.GamePrice) ContentItem {
-	item := ContentItem{Type:ContentType_GamePrice, Data:gamePrice}
+	item := ContentItem{Type: ContentType_GamePrice, Data: gamePrice}
 	return item
 }

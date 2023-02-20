@@ -1,12 +1,11 @@
 package api
 
 import (
+	"celadon-service/util"
 	"fmt"
+
+	"github.com/gin-gonic/gin"
 )
-
-import "github.com/gin-gonic/gin"
-import "github.com/EurasianMagpie/celadon-service/util"
-
 
 func RegisterResourceRoutes(r *gin.Engine) {
 	celadonSubdomain := r.Group("/celadon")

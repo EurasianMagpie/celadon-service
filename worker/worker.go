@@ -1,13 +1,11 @@
 package worker
 
 import (
+	"celadon-service/db"
+	"celadon-service/ipc"
+	"celadon-service/mon"
 	"time"
 )
-
-import "github.com/EurasianMagpie/celadon-service/mon"
-import "github.com/EurasianMagpie/celadon-service/ipc"
-import "github.com/EurasianMagpie/celadon-service/db"
-
 
 func RunWorker() {
 
@@ -18,7 +16,7 @@ func RunWorker() {
 
 func idleProc() {
 	for {
-		time.Sleep(time.Duration(5)*time.Minute)
+		time.Sleep(time.Duration(5) * time.Minute)
 
 		if mon.IsCacheValid() {
 			ipc.GenerateIdleTask()

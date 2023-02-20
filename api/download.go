@@ -1,17 +1,15 @@
 package api
 
 import (
+	"celadon-service/util"
 	"fmt"
 	"os"
-	"regexp"
 	"path/filepath"
+	"regexp"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
-
-import "github.com/gin-gonic/gin"
-
-import "github.com/EurasianMagpie/celadon-service/util"
-
 
 var regVersionFilter *regexp.Regexp
 
@@ -78,7 +76,7 @@ func newVersion(v1 string, v2 string, v3 string, v4 string) version {
 	x2, _ := strconv.Atoi(v2)
 	x3, _ := strconv.Atoi(v3)
 	x4, _ := strconv.Atoi(v4)
-	ver := version{V1:x1, V2:x2, V3:x3, V4:x4}
+	ver := version{V1: x1, V2: x2, V3: x3, V4: x4}
 	return ver
 }
 
@@ -106,9 +104,9 @@ func findLastestApkFileName() (string, error) {
 		return "", nil
 	}
 
-	var latestVersion = version{V1:0, V2:0, V3:0, V4:0}
+	var latestVersion = version{V1: 0, V2: 0, V3: 0, V4: 0}
 	var latestApkFileName = ""
-	filepath.Walk(dir, 
+	filepath.Walk(dir,
 		func(path string, info os.FileInfo, e error) error {
 			if e != nil {
 				return e

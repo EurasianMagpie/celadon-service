@@ -1,19 +1,16 @@
 package ipc
 
 import (
-	"net"
-	"net/rpc"
-	"log"
-	"net/http"
+	"celadon-service/db"
+	"celadon-service/mon"
 	"container/list"
-	"sync"
 	"errors"
+	"log"
+	"net"
+	"net/http"
+	"net/rpc"
+	"sync"
 )
-
-import "github.com/EurasianMagpie/celadon-service/mon"
-import "github.com/EurasianMagpie/celadon-service/db"
-
-
 
 type CcList struct {
 	data *list.List
@@ -27,13 +24,13 @@ func NewCcList() *CcList {
 	return l
 }
 
-func (l *CcList)push(v interface{}) {
+func (l *CcList) push(v interface{}) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	l.data.PushBack(v)
 }
 
-func (l *CcList)pop() (interface{}, error) {
+func (l *CcList) pop() (interface{}, error) {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	if l.data.Len() > 0 {
@@ -44,19 +41,17 @@ func (l *CcList)pop() (interface{}, error) {
 	return nil, errors.New("empty data")
 }
 
-func (l *CcList)empty() bool {
+func (l *CcList) empty() bool {
 	l.lock.Lock()
 	defer l.lock.Unlock()
 	return l.data.Len() == 0
 }
 
-
-
 func (t *Server) AddTask(arg *TaskArg, reply *int) error {
 	if arg != nil {
 		*reply = len(arg.Id)
 		taskList.push(arg)
-		
+
 	}
 	return nil
 }
@@ -69,7 +64,6 @@ func GenerateIdleTask() {
 	taskList.push(&arg)
 }
 
-
 func taskProc() {
 	for {
 		if taskList.empty() {
@@ -78,7 +72,7 @@ func taskProc() {
 		e, err := taskList.pop()
 		if err == nil {
 			var arg *TaskArg = e.(*TaskArg)
-			for i:=0; i<len(arg.Id); i++ {
+			for i := 0; i < len(arg.Id); i++ {
 				mon.DeepFetchGame(arg.Id[i])
 			}
 		}

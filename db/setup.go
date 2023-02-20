@@ -1,15 +1,17 @@
 package db
 
-import "errors"
-import "fmt"
-import "log"
-import "database/sql"
-import _ "database/sql/driver"
-import _ "github.com/go-sql-driver/mysql"
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+	"log"
 
-import "github.com/EurasianMagpie/celadon-service/config"
+	_ "database/sql/driver"
 
+	"celadon-service/config"
 
+	_ "github.com/go-sql-driver/mysql"
+)
 
 func init() {
 	setupDB()
@@ -87,54 +89,54 @@ func setupDB() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	updateRegion(db)
 }
 
-var regions = [...]Region {
-    Region{"Argentina","阿根廷","ARG",""},
-    Region{"Australia","澳大利亚","AUS",""},
-    Region{"Austria","奥地利","AUT",""},
-    Region{"Belgium","比利时","BEL",""},
-    Region{"Brazil","巴西","BRA",""},
-    Region{"Bulgaria","保加利亚","BGR",""},
-    Region{"Canada","加拿大","CAN",""},
-    Region{"Chile","智利","CHL",""},
-    Region{"Colombia","哥伦比亚","COL",""},
-    Region{"Croatia","克罗地亚","HRV",""},
-    Region{"Cyprus","塞浦路斯","CYP",""},
-    Region{"Czech Republic","捷克","CZE",""},
-    Region{"Denmark","丹麦","DNK",""},
-    Region{"Estonia","爱沙尼亚","EST",""},
-    Region{"Finland","芬兰","FIN",""},
-    Region{"France","法国","FRA",""},
-    Region{"Germany","德国","DEU",""},
-    Region{"Greece","希腊","GRC",""},
-    Region{"Hungary","匈牙利","HUN",""},
-    Region{"Ireland","爱尔兰","IRL",""},
-    Region{"Italy","意大利","ITA",""},
-    Region{"Japan","日本","JPN",""},
-    Region{"Latvia","拉脱维亚","LVA",""},
-    Region{"Lithuania","立陶宛","LTU",""},
-    Region{"Luxembourg","卢森堡","LUX",""},
-    Region{"Malta","马耳他","MLT",""},
-    Region{"Mexico","墨西哥","MEX",""},
-    Region{"Netherlands","荷兰","NLD",""},
-    Region{"New Zealand","新西兰","NZL",""},
-    Region{"Norway","挪威","NOR",""},
-    Region{"Peru","秘鲁","PER",""},
-    Region{"Poland","波兰","POL",""},
-    Region{"Portugal","葡萄牙","PRT",""},
-    Region{"Romania","罗马尼亚","ROU",""},
-    Region{"Russia","俄罗斯","RUS",""},
-    Region{"Slovakia","斯洛伐克","SVK",""},
-    Region{"Slovenia","斯洛文尼亚","SVN",""},
-    Region{"South Africa","南非","ZAF",""},
-    Region{"Spain","西班牙","ESP",""},
-    Region{"Sweden","瑞典","SWE",""},
-    Region{"Switzerland","瑞士","CHE",""},
-    Region{"United Kingdom","英国","GBR",""},
-    Region{"United States","美国","USA",""},
+var regions = [...]Region{
+	Region{"Argentina", "阿根廷", "ARG", ""},
+	Region{"Australia", "澳大利亚", "AUS", ""},
+	Region{"Austria", "奥地利", "AUT", ""},
+	Region{"Belgium", "比利时", "BEL", ""},
+	Region{"Brazil", "巴西", "BRA", ""},
+	Region{"Bulgaria", "保加利亚", "BGR", ""},
+	Region{"Canada", "加拿大", "CAN", ""},
+	Region{"Chile", "智利", "CHL", ""},
+	Region{"Colombia", "哥伦比亚", "COL", ""},
+	Region{"Croatia", "克罗地亚", "HRV", ""},
+	Region{"Cyprus", "塞浦路斯", "CYP", ""},
+	Region{"Czech Republic", "捷克", "CZE", ""},
+	Region{"Denmark", "丹麦", "DNK", ""},
+	Region{"Estonia", "爱沙尼亚", "EST", ""},
+	Region{"Finland", "芬兰", "FIN", ""},
+	Region{"France", "法国", "FRA", ""},
+	Region{"Germany", "德国", "DEU", ""},
+	Region{"Greece", "希腊", "GRC", ""},
+	Region{"Hungary", "匈牙利", "HUN", ""},
+	Region{"Ireland", "爱尔兰", "IRL", ""},
+	Region{"Italy", "意大利", "ITA", ""},
+	Region{"Japan", "日本", "JPN", ""},
+	Region{"Latvia", "拉脱维亚", "LVA", ""},
+	Region{"Lithuania", "立陶宛", "LTU", ""},
+	Region{"Luxembourg", "卢森堡", "LUX", ""},
+	Region{"Malta", "马耳他", "MLT", ""},
+	Region{"Mexico", "墨西哥", "MEX", ""},
+	Region{"Netherlands", "荷兰", "NLD", ""},
+	Region{"New Zealand", "新西兰", "NZL", ""},
+	Region{"Norway", "挪威", "NOR", ""},
+	Region{"Peru", "秘鲁", "PER", ""},
+	Region{"Poland", "波兰", "POL", ""},
+	Region{"Portugal", "葡萄牙", "PRT", ""},
+	Region{"Romania", "罗马尼亚", "ROU", ""},
+	Region{"Russia", "俄罗斯", "RUS", ""},
+	Region{"Slovakia", "斯洛伐克", "SVK", ""},
+	Region{"Slovenia", "斯洛文尼亚", "SVN", ""},
+	Region{"South Africa", "南非", "ZAF", ""},
+	Region{"Spain", "西班牙", "ESP", ""},
+	Region{"Sweden", "瑞典", "SWE", ""},
+	Region{"Switzerland", "瑞士", "CHE", ""},
+	Region{"United Kingdom", "英国", "GBR", ""},
+	Region{"United States", "美国", "USA", ""},
 }
 
 func updateRegion(db *sql.DB) {
@@ -151,17 +153,17 @@ func updateRegion(db *sql.DB) {
 }
 
 func FindRegionByAbbr(abbr string) (*Region, error) {
-    for _, r := range regions {
-        if r.Region_id == abbr {
-            return &r, nil
-        }
-    }
-    return nil, errors.New("not found")
+	for _, r := range regions {
+		if r.Region_id == abbr {
+			return &r, nil
+		}
+	}
+	return nil, errors.New("not found")
 }
 
 func FindRegionByIndex(index int) (*Region, error) {
-    if index < len(regions) {
-        return &regions[index], nil
-    }
-    return nil, errors.New("not found")
+	if index < len(regions) {
+		return &regions[index], nil
+	}
+	return nil, errors.New("not found")
 }

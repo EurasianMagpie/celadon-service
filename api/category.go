@@ -1,26 +1,25 @@
 package api
 
 import (
-	"strconv"
+	"celadon-service/db"
 	"errors"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
-
-import "github.com/gin-gonic/gin"
-
-import "github.com/EurasianMagpie/celadon-service/db"
 
 type CateHandlerFunc func(int, int) (*[]db.GamePrice, error)
 
 type Cate struct {
-	Name string
-	Type string
-	Param string
+	Name      string
+	Type      string
+	Param     string
 	IsDefault int
 
 	Handler CateHandlerFunc
 }
 
-var discoverCates = [...]Cate {
+var discoverCates = [...]Cate{
 	Cate{"最新发布", "gplist", "latest", 1, queryLatestHandler},
 	Cate{"经典游戏", "gplist", "classic", 0, queryClassicHandler},
 }
@@ -34,14 +33,14 @@ func init() {
 	for _, cate := range discoverCates {
 		mapDiscoverCates[cate.Param] = cate
 		cates = append(cates, gin.H{
-			"name" : cate.Name,
-			"type" : cate.Type,
-			"param" : cate.Param,
-			"default" : cate.IsDefault,
+			"name":    cate.Name,
+			"type":    cate.Type,
+			"param":   cate.Param,
+			"default": cate.IsDefault,
 		})
 	}
 	cateIndex = gin.H{
-		"cates" : cates,
+		"cates": cates,
 	}
 }
 
@@ -64,14 +63,14 @@ func queryDiscover(c *gin.Context) {
 	}
 	pageNo, err := strconv.Atoi(no)
 	if err != nil {
-		pageNo = 0;
+		pageNo = 0
 	}
 	startPos := pageSize * pageNo
 
 	var handler CateHandlerFunc = unknownCateHandler
 	if val, ok := mapDiscoverCates[cate]; ok {
 		handler = val.Handler
-	} 
+	}
 	r, err := handler(startPos, pageSize)
 
 	if err != nil {
@@ -86,8 +85,8 @@ func queryDiscover(c *gin.Context) {
 				ids = append(ids, e.Id)
 			}
 			if items != nil {
-				d = gin.H {
-					"items" : items,
+				d = gin.H{
+					"items": items,
 				}
 			}
 			invokeIpcTask(ids)

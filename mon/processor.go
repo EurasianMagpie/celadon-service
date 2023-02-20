@@ -1,7 +1,6 @@
 package mon
 
-import "github.com/EurasianMagpie/celadon-service/db"
-
+import "celadon-service/db"
 
 func UpdateResult(result *ParseResult, deep bool) {
 	// fetch gameinfo.cover image
@@ -20,9 +19,9 @@ func UpdateResult(result *ParseResult, deep bool) {
 		}
 
 		FetchGameCoverIfNeeded(game.Id, game.CoverUrl, game.CoverType)
-	}//*/
+	} //*/
 
 	for _, price := range result.Prices {
 		db.UpdatePrice(price)
-	}//*/
+	} //*/
 }
